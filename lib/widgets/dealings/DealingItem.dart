@@ -46,7 +46,25 @@ class DealingItem extends StatelessWidget {
                     ),
                     Align(
                       alignment: Alignment.bottomLeft,
-                      child: Text('Comida - 8 Jul 2020',style: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade800),)
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Comida - ',
+                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15,fontWeight: FontWeight.w500,color: Colors.grey),
+                            ),
+                            WidgetSpan(
+                              child: Icon(Icons.refresh, size: 12,color: Colors.grey,),
+                              alignment: PlaceholderAlignment.middle,
+                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
+                            ),
+                            TextSpan(
+                              text:' Pendiente',
+                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
+                            )
+                          ]
+                        )
+                      )
                     )
                   ],
                 ),
@@ -67,21 +85,7 @@ class DealingItem extends StatelessWidget {
                     ),
                     Align(
                       alignment: Alignment.bottomRight,
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            WidgetSpan(
-                              child: Icon(Icons.refresh, size: 12,color: Colors.grey,),
-                              alignment: PlaceholderAlignment.middle,
-                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
-                            ),
-                            TextSpan(
-                              text:' Pendiente',
-                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
-                            )
-                          ]
-                        )
-                      ),
+                      child: Text('8 Jul 2020'),
                     )
                   ],
                 ),

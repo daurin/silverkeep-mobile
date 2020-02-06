@@ -26,6 +26,8 @@ dependencies:
   material_design_icons_flutter: ^3.4.4895
   sticky_headers: "^0.1.8"
   badges: ^1.1.0
+  
+  device_preview: ^0.2.6
 
 
 

@@ -1,6 +1,6 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
-import 'package:silverkeep/widgets/dealings/DealingItem.dart';
+import 'package:silverkeep/widgets/dealings/DealingItem2.dart';
 
 class DialingsFragment extends StatefulWidget {
   DialingsFragment({Key key}) : super(key: key);
@@ -14,8 +14,7 @@ class _DialingsFragmentState extends State<DialingsFragment> {
   Widget build(BuildContext context) {
     return ListView.separated(
       itemBuilder: (bc,index){
-        if(index>5)return _buildItem();
-        else return DealingItem();
+        return DealingItem2();
       },
       separatorBuilder: (bc,index){
         return Divider(height: 1,);
@@ -24,11 +23,4 @@ class _DialingsFragmentState extends State<DialingsFragment> {
     );
   }
 
-  Widget _buildItem(){
-    return ListTile(
-      title: Text('Cuenta de ahorro popular',style: TextStyle(fontWeight: FontWeight.w500),),
-      subtitle: Text('8 Jul 2020',style: TextStyle(fontWeight: FontWeight.w500),),
-      trailing: Text('\$ 30,000', style: TextStyle(fontSize: 17,fontWeight: FontWeight.w500,color: Colors.green))
-    );
-  }
 }

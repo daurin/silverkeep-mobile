@@ -1,6 +1,5 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
-import 'package:silverkeep/widgets/dealings/DealingItem2.dart';
+import 'package:silverkeep/widgets/dealings/DealingItem.dart';
 
 class DialingsFragment extends StatefulWidget {
   DialingsFragment({Key key}) : super(key: key);
@@ -14,7 +13,7 @@ class _DialingsFragmentState extends State<DialingsFragment> {
   Widget build(BuildContext context) {
     return ListView.separated(
       itemBuilder: (bc,index){
-        return DealingItem2();
+        return DealingItem();
       },
       separatorBuilder: (bc,index){
         return Divider(height: 1,);

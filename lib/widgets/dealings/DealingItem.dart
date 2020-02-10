@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class DealingItem extends StatelessWidget {
   final double amount; 
@@ -7,92 +8,90 @@ class DealingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //padding: EdgeInsets.all(16),
-      height: 72,
-      child: InkWell(
-        onTap: (){},
-        child: Row(
-          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Visibility(
-              maintainSize: false, 
-              maintainAnimation: true,
-              maintainState: true,
-              visible: true,
-              child: Container(
-                margin: EdgeInsets.fromLTRB(16, 16, 0,16),
-                height: double.infinity,
-                width: 7,
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(4),bottomLeft: Radius.circular(4)),
+    return ListTile(
+      title: Text('Sueldo del trabajo'),
+      subtitle: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Banco popular ',
+                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
                 ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                //color: Colors.red,
-                margin: EdgeInsets.fromLTRB(16,16, 0, 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text('Cuenta de ahorro banco popular',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 17,fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Comida - ',
-                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15,fontWeight: FontWeight.w500,color: Colors.grey),
-                            ),
-                            WidgetSpan(
-                              child: Icon(Icons.refresh, size: 12,color: Colors.grey,),
-                              alignment: PlaceholderAlignment.middle,
-                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
-                            ),
-                            TextSpan(
-                              text:' Pendiente',
-                              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13,fontWeight: FontWeight.w500,color: Colors.grey)
-                            )
-                          ]
-                        )
-                      )
-                    )
-                  ],
+                WidgetSpan(
+                  child: Icon(MdiIcons.swapHorizontal, size: 13,),
+                  alignment: PlaceholderAlignment.middle,
+                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15)
                 ),
-              ),
-            ),
-            Container(
-              //color: Colors.blue,
-              margin: EdgeInsets.fromLTRB(0, 16, 16, 16),
-              child: IntrinsicWidth(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Text('+\$ 30,000',
-                        style: TextStyle(fontSize: 18,fontWeight: FontWeight.w500,color: Colors.green)
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Text('8 Jul 2020'),
-                    )
-                  ],
+                TextSpan(
+                  text: ' Billetera',
+                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
                 ),
-              ),
+              ]
             )
-          ],
-        ),
+          ),
+          SizedBox(height: 5,),
+          RichText(
+            text: TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(Icons.refresh, size: 17,color: Colors.grey,),
+                  alignment: PlaceholderAlignment.middle,
+                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15,color: Colors.grey)
+                ),
+                TextSpan(
+                  text: ' Periodica',
+                  style: Theme.of(context).textTheme.caption.copyWith(fontSize: 15)
+                ),
+              ]
+            )
+          )
+        ],
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          RichText(
+            text:TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Icon(Icons.trending_up, size: 17),
+                ),
+                TextSpan(
+                  text: ' \$ 30,000',
+                  style: TextStyle(fontSize: 17 ,color: Colors.green[400])
+                ),
+              ]
+            )
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+               _buildDealingTag(context,title: 'Sueldo'),
+               _buildDealingTag(context,title: 'Clientes'),
+            ],
+          )
+        ],
+      ),
+      isThreeLine: true,
+      onTap: (){
+
+      },
+    );
+  }
+
+  _buildDealingTag(BuildContext context,{String title}){
+    return Container(
+      margin: EdgeInsets.only(left: 5),
+      child: Text(title,style: Theme.of(context).textTheme.caption.copyWith(fontSize: 14),),
+      padding: EdgeInsets.fromLTRB(7, 3, 7, 2),
+      decoration: BoxDecoration(
+        border: Border.all(width: 1,color: Theme.of(context).dividerColor),
+        borderRadius: BorderRadius.all(Radius.circular(7))
       ),
     );
   }

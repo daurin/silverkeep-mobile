@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:silverkeep/widgets/Dealings/DealingsAppBar.dart';
 import 'package:silverkeep/widgets/dealings/DealingsFragment.dart';
+import 'package:silverkeep/widgets/more/MoreFragment.dart';
+import 'package:silverkeep/widgets/more/MoreAppBar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -29,8 +31,12 @@ class _HomePageState extends State<HomePage> {
         child: IndexedStack(
           index:_bottonNavigationIndex,
           children: <Widget>[
-            AppBar(),
-            DialingsAppBar()
+            AppBar(
+              title: Text('Silver Keep'),
+            ),
+            DialingsAppBar(),
+            AppBar( title: Text('Presupuestos'),),
+            MoreAppBar()
           ],
         ),
       ),
@@ -40,18 +46,21 @@ class _HomePageState extends State<HomePage> {
           Center(child:Text('General')),
           DialingsFragment(),
           Center(child:Text('Presupuestos')),
-          Center(child:Text('Mas')),
+          MoreFragment()
         ]
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: (){}
-      ),
+      floatingActionButton:_bottonNavigationIndex!=3 ? FloatingActionButton(
+        child:Icon(Icons.add),
+        onPressed: (){
+
+        }
+      ):null,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _bottonNavigationIndex,
         selectedFontSize: 14,
         unselectedFontSize: 14,
+        //showUnselectedLabels: false,
         onTap: (index){
           setState(() {
             _bottonNavigationIndex=index;
@@ -59,19 +68,19 @@ class _HomePageState extends State<HomePage> {
         },
         items:[
           BottomNavigationBarItem(
-            icon: Icon(MdiIcons.homeAnalytics),
+            icon: Icon(MdiIcons.homeOutline),
             title: Text('General')
           ),
           BottomNavigationBarItem(
-            icon: Icon(MdiIcons.swapHorizontal),
-            title: Text('Transacciones')
+            icon: Icon(MdiIcons.clipboardListOutline),
+            title: Text('Transacciones'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(MdiIcons.chartGantt),
+            icon: Icon(MdiIcons.flagOutline),
             title: Text('Presupuestos')
           ),
           BottomNavigationBarItem(
-            icon: Icon(MdiIcons.dotsHorizontal),
+            icon: Icon(Icons.menu),
             title: Text('Mas')
           )
         ]

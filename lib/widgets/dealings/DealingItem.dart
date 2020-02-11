@@ -9,7 +9,7 @@ class DealingItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text('Sueldo del trabajo'),
+      title: Text('Sueldo del trabajo',style: Theme.of(context).textTheme.subhead,),
       subtitle: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,16 +19,16 @@ class DealingItem extends StatelessWidget {
               children: [
                 TextSpan(
                   text: 'Banco popular ',
-                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
+                  style: Theme.of(context).textTheme.subtitle
                 ),
                 WidgetSpan(
-                  child: Icon(MdiIcons.swapHorizontal, size: 13,),
+                  child: Icon(MdiIcons.swapHorizontal, size: 12,),
                   alignment: PlaceholderAlignment.middle,
-                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15)
+                  style: Theme.of(context).textTheme.subtitle
                 ),
                 TextSpan(
                   text: ' Billetera',
-                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
+                  style: Theme.of(context).textTheme.subtitle
                 ),
               ]
             )
@@ -38,13 +38,13 @@ class DealingItem extends StatelessWidget {
             text: TextSpan(
               children: [
                 WidgetSpan(
-                  child: Icon(Icons.refresh, size: 17,color: Colors.grey,),
+                  child: Icon(Icons.refresh, size: 14,color: Colors.grey,),
                   alignment: PlaceholderAlignment.middle,
-                  style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 15,color: Colors.grey)
+                  style: Theme.of(context).textTheme.subtitle
                 ),
                 TextSpan(
                   text: ' Periodica',
-                  style: Theme.of(context).textTheme.caption.copyWith(fontSize: 15)
+                  style: Theme.of(context).textTheme.subtitle
                 ),
               ]
             )
@@ -58,12 +58,12 @@ class DealingItem extends StatelessWidget {
           RichText(
             text:TextSpan(
               children: [
-                WidgetSpan(
-                  child: Icon(Icons.trending_up, size: 17),
-                ),
+                // WidgetSpan(
+                //   child: Icon(Icons.trending_up, size: 17),
+                // ),
                 TextSpan(
-                  text: ' \$ 30,000',
-                  style: TextStyle(fontSize: 17 ,color: Colors.green[400])
+                  text: ' + \$ 30,000',
+                  style: Theme.of(context).textTheme.title.copyWith(color:Colors.green.shade400)
                 ),
               ]
             )

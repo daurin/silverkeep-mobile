@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pattern_formatter/numeric_formatter.dart';
+import 'package:silverkeep/utils/NumberInputFormatter2.dart';
 import 'package:silverkeep/widgets/shared/dialogs/ColorSelectDialog.dart';
 
 class AccountPage extends StatefulWidget {
@@ -19,16 +22,32 @@ class _AccountPageState extends State<AccountPage> {
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.title),
-            title: TextField(
-              decoration: InputDecoration.collapsed(
-                hintText: 'Titulo'
+            title: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 800,
+              ),
+              child: TextField(
+                maxLines: null,
+                style: Theme.of(context).textTheme.title,
+                decoration: InputDecoration.collapsed(
+                  hintText: 'Titulo',
+                  hintStyle: Theme.of(context).textTheme.title.copyWith(color:Theme.of(context).hintColor)
+                ),
               ),
             ),
           ),
+          Divider(),
           ListTile(
             leading: Icon(Icons.attach_money),
             title: TextField(
-              decoration: InputDecoration.collapsed(
+              //controller: ,
+              inputFormatters: [
+                //WhitelistingTextInputFormatter.digitsOnly,
+                //ThousandsFormatter(allowFraction: true,//formatter: CustomFormat.numberWithDecimal())
+                NumberInputFormatter2()
+              ],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration.collapsed(
                 hintText: 'Saldo'
               ),
             ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:silverkeep/utils/NumberInputFormatter2.dart';
 import 'package:silverkeep/widgets/shared/dialogs/ColorSelectDialog.dart';
 
@@ -21,17 +20,26 @@ class _AccountPageState extends State<AccountPage> {
       body: ListView(
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.title),
+            // leading: Visibility(
+            //   visible: false,
+            //   maintainAnimation: true,
+            //   maintainSemantics: true,
+            //   maintainSize: true,
+            //   maintainState: true,
+            //   child: Icon(Icons.title)
+            // ),
             title: ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: 800,
               ),
               child: TextField(
+                controller: TextEditingController(text: 'Cuenta de banco popular Dominicano'),
                 maxLines: null,
-                style: Theme.of(context).textTheme.title,
-                decoration: InputDecoration.collapsed(
+                style: Theme.of(context).textTheme.headline,
+                decoration: InputDecoration(
                   hintText: 'Titulo',
-                  hintStyle: Theme.of(context).textTheme.title.copyWith(color:Theme.of(context).hintColor)
+                  border: InputBorder.none,
+                  hintStyle: Theme.of(context).textTheme.headline.copyWith(color:Theme.of(context).hintColor)
                 ),
               ),
             ),
@@ -42,11 +50,12 @@ class _AccountPageState extends State<AccountPage> {
             title: TextField(
               //controller: ,
               inputFormatters: [
-                //WhitelistingTextInputFormatter.digitsOnly,
-                //ThousandsFormatter(allowFraction: true,//formatter: CustomFormat.numberWithDecimal())
-                NumberInputFormatter2()
+                NumberInputFormatter2(
+                  decimalRange: 2,
+                  signed: true
+                )
               ],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(signed: true,decimal: true),
                 decoration: InputDecoration.collapsed(
                 hintText: 'Saldo'
               ),

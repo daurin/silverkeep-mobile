@@ -30,19 +30,19 @@ final ThemeData themeLight=new ThemeData(
   buttonTheme: _buttonTheme,
   fontFamily: _fontFamily,
   textTheme: TextTheme(
-    title: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade800),
-    subhead: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade800),
-    subtitle: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade700),
     body1: TextStyle(fontWeight: FontWeight.w500),
     body2: TextStyle(fontWeight: FontWeight.w500),
     button: TextStyle(fontWeight: FontWeight.w500),
     caption: TextStyle(fontWeight: FontWeight.w500),
+    subtitle: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade700),
+    subhead: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade800),
+    title: TextStyle(fontWeight: FontWeight.w500,color: Colors.grey.shade800),
+    headline: TextStyle(fontWeight: FontWeight.w400,color:Colors.black.withOpacity(0.73)),
     display1: TextStyle(fontWeight: FontWeight.w500),
+    overline: TextStyle(fontWeight: FontWeight.w500),
     display2: TextStyle(fontWeight: FontWeight.w500),
     display3: TextStyle(fontWeight: FontWeight.w500),
     display4: TextStyle(fontWeight: FontWeight.w500),
-    headline: TextStyle(fontWeight: FontWeight.w500),
-    overline: TextStyle(fontWeight: FontWeight.w500),
   )
 );
 

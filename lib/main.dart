@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:silverkeep/themes.dart';
+import 'package:silverkeep/widgets/accounts/AccountPage.dart';
 import 'package:silverkeep/widgets/home/HomePage.dart';
 
 void main() => runApp(MyApp());

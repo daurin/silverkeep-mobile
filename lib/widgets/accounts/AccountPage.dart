@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:silverkeep/utils/NumberInputFormatter2.dart';
 import 'package:silverkeep/widgets/shared/dialogs/ColorSelectDialog.dart';
 
@@ -50,7 +51,10 @@ class _AccountPageState extends State<AccountPage> {
             title: TextField(
               //controller: ,
               inputFormatters: [
+                //ThousandsFormatter()
                 NumberInputFormatter2(
+                  decimalSeparator: '.',
+                  thousandsSeparator: ',',
                   decimalRange: 2,
                   signed: true
                 )

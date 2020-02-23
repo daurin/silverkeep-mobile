@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:silverkeep/widgets/dealings/DealingItem.dart';
+import 'package:silverkeep/modules/dealings/DealingItem.dart';
 
 class DialingsFragment extends StatefulWidget {
   DialingsFragment({Key key}) : super(key: key);

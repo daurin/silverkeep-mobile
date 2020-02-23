@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:silverkeep/widgets/accounts/AccountsPage.dart';
+import 'package:silverkeep/modules/accounts/widgets/AccountsPage.dart';
+import 'package:silverkeep/modules/labels/LabelsPage.dart';
 
 class MoreFragment extends StatelessWidget {
   const MoreFragment({Key key}) : super(key: key);
@@ -21,8 +22,10 @@ class MoreFragment extends StatelessWidget {
         ),
         ListTile(
           leading: Icon(Icons.label_outline),
-          title: Text('Categorias'),
-          onTap: () {},
+          title: Text('Etiquetas'),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => LabelsPage()));
+          },
         ),
         Divider(
           height: 1,

@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:silverkeep/services/SharedPrefService.dart';
 import 'package:silverkeep/themes.dart';
-import 'package:silverkeep/widgets/accounts/AccountPage.dart';
-import 'package:silverkeep/widgets/home/HomePage.dart';
+import 'package:silverkeep/modules/home/HomePage.dart';
 
-void main() => runApp(MyApp());
+import 'db/DB.dart';
+
+void main()async{
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await DB.init();
+
+  final prefs=new SharedPrefService();
+  await prefs.initPrefs();
+  
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

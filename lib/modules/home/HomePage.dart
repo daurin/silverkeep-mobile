@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:silverkeep/widgets/Dealings/DealingsAppBar.dart';
-import 'package:silverkeep/widgets/dealings/DealingsFragment.dart';
-import 'package:silverkeep/widgets/more/MoreFragment.dart';
-import 'package:silverkeep/widgets/more/MoreAppBar.dart';
+import 'package:silverkeep/modules/Dealings/DealingsAppBar.dart';
+import 'package:silverkeep/modules/dealings/DealingsFragment.dart';
+import 'package:silverkeep/modules/more/MoreFragment.dart';
+import 'package:silverkeep/modules/more/MoreAppBar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);

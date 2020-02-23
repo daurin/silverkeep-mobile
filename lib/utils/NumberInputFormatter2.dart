@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
@@ -27,25 +28,13 @@ class NumberInputFormatter2 extends TextInputFormatter{
 
     if(newValue.text.length==0)return newValue;
     if(newValue.text==',')return oldValue;
-    
-
-    //print(oldValue.selection.textInside('text'))        
-
-    // if(newValue.text.startsWith(_thousandsSeparator))
-    //   return oldValue.copyWith(
-    //     text: oldValue.text.substring(2,oldValue.text.length),
-    //     selection: TextSelection.collapsed(offset: 0),
-    //   );
-    //print(oldValue.text.length-newValue.text.length);
-
-    // if(oldValue.text.length-newValue.text.length==1)print('('+oldValue.text.substring(oldValue.selection.start-1,oldValue.selection.end));
-    // else print('('+oldValue.text.substring(oldValue.selection.start,oldValue.selection.end));
 
     // Validamos la entrada del usuario
     // RegExp(r'^(?:-?(?:[0-9]+))?(?:\.[0-9]*)?(?:[eE][\+\-]?(?:[0-9]+))?$'); Original regex
     RegExp regEx=RegExp('');
     if(_decimalRange>0)regEx=RegExp(r'^'+(_signed?'-?':'')+'(?:[0-9]+)?(?:[$_decimalSeparator][0-9]{0,$_decimalRange})?(?:[eE][\+\-]?(?:[0-9]+))?\$');
     else regEx=RegExp('^'+(_signed?'-?':'')+'(?:-?(?:[0-9]+))?\$');
+    //regEx=RegExp(r'^-?[0-9]\d*(\.\d{1,'+_decimalRange.toString()+r'})?$');
     if(!regEx.hasMatch(newValue.text.replaceAll(_thousandsSeparator,''))){
       return oldValue;
     }

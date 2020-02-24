@@ -66,7 +66,7 @@ class _AccountPageState extends State<AccountPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title:Text('Nueva cuenta'),
+          title:Text(_pageMode==PageMode.add?'Nueva cuenta':_account.name),
           actions: <Widget>[
             Visibility(
               visible: _pageMode==PageMode.edit,

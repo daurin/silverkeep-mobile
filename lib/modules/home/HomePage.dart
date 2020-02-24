@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:silverkeep/modules/Dealings/DealingsAppBar.dart';
-import 'package:silverkeep/modules/dealings/DealingsFragment.dart';
 import 'package:silverkeep/modules/more/MoreFragment.dart';
 import 'package:silverkeep/modules/more/MoreAppBar.dart';
+import 'package:silverkeep/modules/transactions/TransactionAppBar.dart';
+import 'package:silverkeep/modules/transactions/TransactionFragment.dart';
+import 'package:silverkeep/modules/transactions/TransactionsFragment.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -34,8 +35,8 @@ class _HomePageState extends State<HomePage> {
             AppBar(
               title: Text('Silver Keep'),
             ),
-            DialingsAppBar(),
-            AppBar( title: Text('Presupuestos'),),
+            TransactionAppBar(),
+            //AppBar( title: Text('Presupuestos'),),
             MoreAppBar()
           ],
         ),
@@ -44,15 +45,15 @@ class _HomePageState extends State<HomePage> {
         index:_bottonNavigationIndex,
         children:[
           Center(child:Text('General')),
-          DialingsFragment(),
-          Center(child:Text('Presupuestos')),
+          TransactionsFragment(),
+          //Center(child:Text('Presupuestos')),
           MoreFragment()
         ]
       ),
-      floatingActionButton:_bottonNavigationIndex!=3 ? FloatingActionButton(
+      floatingActionButton:_bottonNavigationIndex!=2 ? FloatingActionButton(
         child:Icon(Icons.add),
         onPressed: (){
-
+          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionFragment()));
         }
       ):null,
       bottomNavigationBar: BottomNavigationBar(
@@ -75,10 +76,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(MdiIcons.clipboardListOutline),
             title: Text('Transacciones'),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(MdiIcons.flagOutline),
-            title: Text('Presupuestos')
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(MdiIcons.flagOutline),
+          //   title: Text('Presupuestos')
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.menu),
             title: Text('Mas')

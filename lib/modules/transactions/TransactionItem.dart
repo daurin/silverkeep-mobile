@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class DealingItem extends StatelessWidget {
+class TransactionItem extends StatelessWidget {
   final double amount; 
 
-  const DealingItem({Key key,this.amount}) : super(key: key);
+  const TransactionItem({Key key,this.amount}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

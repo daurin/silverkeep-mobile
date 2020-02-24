@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class DialingsAppBar extends StatelessWidget {
-  const DialingsAppBar({Key key}) : super(key: key);
+class TransactionAppBar extends StatelessWidget {
+  const TransactionAppBar({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

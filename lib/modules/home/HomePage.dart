@@ -3,7 +3,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:silverkeep/modules/more/MoreFragment.dart';
 import 'package:silverkeep/modules/more/MoreAppBar.dart';
 import 'package:silverkeep/modules/transactions/TransactionAppBar.dart';
-import 'package:silverkeep/modules/transactions/TransactionFragment.dart';
+import 'package:silverkeep/modules/transactions/TransactionPage.dart';
 import 'package:silverkeep/modules/transactions/TransactionsFragment.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton:_bottonNavigationIndex!=2 ? FloatingActionButton(
         child:Icon(Icons.add),
         onPressed: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionFragment()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionPage()));
         }
       ):null,
       bottomNavigationBar: BottomNavigationBar(

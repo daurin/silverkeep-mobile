@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:silverkeep/modules/more/MoreFragment.dart';
 import 'package:silverkeep/modules/more/MoreAppBar.dart';
@@ -50,12 +51,7 @@ class _HomePageState extends State<HomePage> {
           MoreFragment()
         ]
       ),
-      floatingActionButton:_bottonNavigationIndex!=2 ? FloatingActionButton(
-        child:Icon(Icons.add),
-        onPressed: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionPage()));
-        }
-      ):null,
+      floatingActionButton:_buildFloatingActionButton(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _bottonNavigationIndex,
@@ -86,6 +82,39 @@ class _HomePageState extends State<HomePage> {
           )
         ]
       ),
+    );
+  }
+
+  _buildFloatingActionButton(){
+    return SpeedDial(
+      visible: _bottonNavigationIndex!=2,
+      child: Icon(Icons.add),
+      children: [
+        SpeedDialChild(
+            label: 'Ingreso',
+            backgroundColor: Colors.green,
+            child: Icon(Icons.trending_up),
+            onTap: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionPage()));
+            }
+          ),
+          SpeedDialChild(
+            label: 'Gasto',
+            backgroundColor: Colors.red,
+            child: Icon(Icons.trending_down),
+            onTap: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionPage()));
+            }
+          ),
+          SpeedDialChild(
+            label: 'Transferencia',
+            backgroundColor: Colors.blue,
+            child: Icon(MdiIcons.swapHorizontal),
+            onTap: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TransactionPage()));
+            }
+          ),
+      ],
     );
   }
 }

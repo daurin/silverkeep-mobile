@@ -71,8 +71,8 @@ class TransactionItem extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-               _buildDealingTag(context,title: 'Sueldo'),
-               _buildDealingTag(context,title: 'Clientes'),
+               _buildTransactionTag(context,title: 'Sueldo'),
+               _buildTransactionTag(context,title: 'Clientes'),
             ],
           )
         ],
@@ -84,7 +84,7 @@ class TransactionItem extends StatelessWidget {
     );
   }
 
-  _buildDealingTag(BuildContext context,{String title}){
+  _buildTransactionTag(BuildContext context,{String title}){
     return Container(
       margin: EdgeInsets.only(left: 5),
       child: Text(title,style: Theme.of(context).textTheme.caption.copyWith(fontSize: 14),),

@@ -104,7 +104,7 @@ class _AccountPageState extends State<AccountPage> {
                     autofocus: _nameController.text.length==0,
                     maxLines: null,
                     keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.next,
+                    textInputAction: TextInputAction.done,
                     textCapitalization: TextCapitalization.sentences,
                     //textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headline,
@@ -125,7 +125,7 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
               ),
-              Divider(height: 1,),
+              Divider(),
               Visibility(
                 visible: _pageMode==PageMode.add,
                 child: ListTile(
@@ -138,7 +138,7 @@ class _AccountPageState extends State<AccountPage> {
                       NumberInputFormatter2(
                         decimalSeparator: '.',
                         thousandsSeparator: ',',
-                        decimalRange: 2,
+                        decimalRange: 6,
                         signed: true
                       )
                     ],

@@ -234,6 +234,7 @@ class _LabelsPageState extends State<LabelsPage> {
             controller: controller,
             focusNode: focusNode,
             textCapitalization: TextCapitalization.sentences,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration.collapsed(
               hintText: 'Crear etiqueta nueva'
             ),
@@ -298,6 +299,7 @@ class _LabelsPageState extends State<LabelsPage> {
           title: TextField(
             controller: controller,
             focusNode: focusNode,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration.collapsed(
               hintText: ''),
           ),

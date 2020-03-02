@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:silverkeep/db/models/Account.dart';
 import 'package:silverkeep/services/SharedPrefService.dart';
 import 'package:silverkeep/themes.dart';
 import 'package:silverkeep/modules/home/HomePage.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'db/DB.dart';
+import 'db/models/User.dart';
 
 void main()async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +16,15 @@ void main()async{
   final prefs=new SharedPrefService();
   await prefs.initPrefs();
   
+  if(prefs.openFirstTimeApp){
+    prefs.openFirstTimeApp=false;
+    User.add(User())
+      .then((int id)async{
+        await Account.add(Account(name: 'Efectivo',idUser: id,orderCustom: 0));
+      });
+  }
+  Intl.defaultLocale = 'es_US';
+
   runApp(MyApp());
 }
 
@@ -23,7 +35,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: themeLight,
-      home:HomePage()
+      home:HomePage(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      locale: Locale('es','US'),
+      supportedLocales: [
+        const Locale('es','US')
+        //const Locale('en', 'US'),
+      ],
     );
   }
 }

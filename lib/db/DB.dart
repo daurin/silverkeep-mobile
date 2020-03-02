@@ -23,20 +23,20 @@ abstract class DB {
   static _onCreate(Database db, int version) {
     print('Base de datos creada');
 
-    rootBundle.loadString('lib/db/silverkeep.sql').then((String script) {
-      List<String> scripts = script.split(";");
-      scripts.forEach((v) {
-        if (v.isNotEmpty) {
-          //print(v.trim());
-          db.execute(v.trim());
-        }
+    rootBundle.loadString('lib/db/silverkeep.sql')
+      .then((String script) {
+        List<String> scripts = script.split(";");
+        scripts.forEach((v) {
+          if (v.isNotEmpty) {
+            print(v);
+            db.execute(v.trim());
+          }
+        });
+      })
+      .catchError((err) {
+        print("Error: " + err.toString());
+        //throw(err);
       });
-
-      //return db.execute(_getStringFromBytes(res));
-    }).catchError((err) {
-      print("Error: " + err.toString());
-      //throw(err);
-    });
   }
 
   static _onUprade(Database db, int oldVersion, int newVersion) {}

@@ -83,13 +83,18 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_speed_dial:
+  flutter_localizations:
+    dependency: "direct main"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  flutter_masked_text:
     dependency: "direct main"
     description:
-      name: flutter_speed_dial
+      name: flutter_masked_text
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.5"
+    version: "0.8.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -127,7 +132,7 @@ packages:
       name: intl
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.16.1"
+    version: "0.16.0"
   mask_text_input_formatter:
     dependency: "direct main"
     description:
@@ -177,6 +182,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.0"
+  pattern_formatter:
+    dependency: "direct main"
+    description:
+      name: pattern_formatter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   pedantic:
     dependency: transitive
     description:
@@ -252,6 +264,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sliding_up_panel:
+    dependency: "direct main"
+    description:
+      name: sliding_up_panel
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   source_span:
     dependency: transitive
     description:

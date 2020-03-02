@@ -1,14 +1,16 @@
-BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS "TRANSACTION" (
 	"id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"id_user"	INTEGER NOT NULL,
 	"id_account"	INTEGER NOT NULL,
-	"id_account_transfer"	INTEGER,
+	"id_account_transfer"	BLOB,
 	"amount"	NUMERIC NOT NULL,
 	"notes"	TEXT,
-	"repeatType"	TEXT,
 	"date"	TEXT NOT NULL,
-	"dateFinish"	TEXT,
+	"date_finish"	TEXT,
+	"transaction_type"	TEXT NOT NULL,
+	"repeat_mode"	TEXT,
+	"repeat_every"	TEXT,
+	"repeat_count"	INTEGER,
 	"monday"	INTEGER NOT NULL DEFAULT 0,
 	"tuesday"	INTEGER NOT NULL DEFAULT 0,
 	"wednesday"	INTEGER NOT NULL DEFAULT 0,
@@ -51,7 +53,3 @@ CREATE TABLE IF NOT EXISTS "TRANSACTION_LABEL" (
 	FOREIGN KEY("id_transaction") REFERENCES "TRANSACTION_LABEL"("id"),
 	FOREIGN KEY("id_label") REFERENCES "LABEL"("id")
 );
-INSERT INTO "USER" ("id","first_name","last_name","email","password") VALUES (1,NULL,NULL,NULL,NULL),
- (2,'Invitado',NULL,NULL,NULL);
- INSERT INTO "ACCOUNT" ("id_user","name","order_custom") VALUES (1,"Billetera","0");
-COMMIT;

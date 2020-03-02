@@ -68,7 +68,7 @@ class ColorsApp{
       {
         'key':'predetermined',
         'title':'Predeterminado',
-        'color':Theme.of(context).primaryColor
+        'color':null
       }
     ];
   }

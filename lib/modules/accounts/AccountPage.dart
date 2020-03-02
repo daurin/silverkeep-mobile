@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:silverkeep/db/models/Account.dart';
 import 'package:silverkeep/enums/PageMode.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
@@ -134,13 +135,7 @@ class _AccountPageState extends State<AccountPage> {
                     controller: _amountController,
                     focusNode: _amountFocus,
                     inputFormatters: [
-                      //ThousandsFormatter()
-                      NumberInputFormatter2(
-                        decimalSeparator: '.',
-                        thousandsSeparator: ',',
-                        decimalRange: 6,
-                        signed: true
-                      )
+                      ThousandsFormatter(allowFraction: true),
                     ],
                       keyboardType: TextInputType.numberWithOptions(signed: true,decimal: true),
                       decoration: InputDecoration.collapsed(
@@ -157,9 +152,17 @@ class _AccountPageState extends State<AccountPage> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(MdiIcons.contentSaveOutline),
-          onPressed: _save
+        // floatingActionButton: FloatingActionButton(
+        //   child: Icon(MdiIcons.contentSaveOutline),
+        //   onPressed: _save
+        // ),
+        bottomNavigationBar: Container(
+          height: kBottomNavigationBarHeight,
+          child: RaisedButton(
+            child: Text('Guardar',style: TextStyle(fontSize: 16),),
+            textColor: Theme.of(context).primaryTextTheme.title.color,
+            onPressed: _save
+          ),
         ),
       ),
     );

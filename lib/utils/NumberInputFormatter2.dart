@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols.dart';
+import 'package:intl/number_symbols_data.dart';
 
 class NumberInputFormatter2 extends TextInputFormatter{
 
@@ -20,6 +22,9 @@ class NumberInputFormatter2 extends TextInputFormatter{
     _thousandsSeparator=thousandsSeparator;
     _decimalRange=decimalRange;
     _signed=signed;
+
+    _decimalSeparator=NumberFormat().symbols.DECIMAL_SEP;
+    _thousandsSeparator=NumberFormat().symbols.GROUP_SEP;
   }
 
 
@@ -27,12 +32,12 @@ class NumberInputFormatter2 extends TextInputFormatter{
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
 
     if(newValue.text.length==0)return newValue;
-    if(newValue.text==',')return oldValue;
+    if(newValue.text==_thousandsSeparator)return oldValue;
 
     // Validamos la entrada del usuario
     // RegExp(r'^(?:-?(?:[0-9]+))?(?:\.[0-9]*)?(?:[eE][\+\-]?(?:[0-9]+))?$'); Original regex
     RegExp regEx=RegExp('');
-    if(_decimalRange>0)regEx=RegExp(r'^'+(_signed?'-?':'')+'(?:[0-9]+)?(?:[$_decimalSeparator][0-9]{0,$_decimalRange})?(?:[eE][\+\-]?(?:[0-9]+))?\$');
+    if(_decimalRange>0)regEx=RegExp(r'^'+(_signed?'-?':'')+'(?:[0-9]+)?(?:[$_decimalSeparator][0-9]{0,$_decimalRange})?(?:[eE][\\+\\-]?(?:[0-9]+))?\$');
     else regEx=RegExp('^'+(_signed?'-?':'')+'(?:-?(?:[0-9]+))?\$');
     //regEx=RegExp(r'^-?[0-9]\d*(\.\d{1,'+_decimalRange.toString()+r'})?$');
     if(!regEx.hasMatch(newValue.text.replaceAll(_thousandsSeparator,''))){
@@ -66,6 +71,7 @@ class NumberInputFormatter2 extends TextInputFormatter{
         //print((oldValue.selection.start).toString()+' '+(oldValue.selection.end).toString());
       }
 
+      //NumberFormat format=NumberFormat();
       NumberFormat format=NumberFormat();
       if(newText.substring(newText.length-1,newText.length)=='.'){
         newText=format.format(double.parse(newText.replaceAll(_thousandsSeparator, '')));
@@ -74,8 +80,11 @@ class NumberInputFormatter2 extends TextInputFormatter{
       else {
         newText=format.format(double.parse(newText.replaceAll(_thousandsSeparator, '')));
       }
-      newText=newText.replaceAll('.',_decimalSeparator);
-      newText=newText.replaceAll(',',_thousandsSeparator);
+
+      // newText=newText.replaceAll('.',_decimalSeparator);
+      // newText=newText.replaceAll(',',_thousandsSeparator);
+
+      print(newText);
       
       selectionOffset+=newText.length-(newValue.text.length - newValue.selection.end);
       if(selectionOffset<0)selectionOffset=0;

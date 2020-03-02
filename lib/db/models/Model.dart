@@ -1,4 +1,6 @@
 abstract class Model {
 
-    toMap() {}
+    Map<String, dynamic> toMap({ignoreId=false}) {
+
+    }
 }

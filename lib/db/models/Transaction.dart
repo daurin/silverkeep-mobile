@@ -9,7 +9,10 @@ class Transaction {
   int idAccountTransfer;
   double amount;
   String notes;
-  String repeatType;
+  TransactionType transactionType;
+  String repeatMode;
+  String repeatEvery;
+  int repeatCount;
   DateTime date;
   DateTime dateFinish;
   bool monday;
@@ -23,7 +26,8 @@ class Transaction {
 
   static String tableName = 'TRANSACTION';
 
-  Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.notes,this.repeatType,this.date,
+  Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.notes,this.transactionType,
+  this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
   this.dateFinish,this.monday,this.tuesday,this.wednesday,this.thursday,this.friday,this.saturday,this.sunday});
 
   Map<String, dynamic> toMap({ignoreId=false}) {
@@ -34,7 +38,17 @@ class Transaction {
       'id_account_transfer': idAccountTransfer,
       'amount':amount,
       'notes':notes,
-      'repeat_type':repeatType,
+      'transaction_mode':(){
+        switch (transactionType) {
+          case TransactionType.Income: return 'I';
+          case TransactionType.Expense:return 'E';
+          case TransactionType.Transfer: return 'T';
+          default: return null;
+        }
+      }(),
+      'repeat_mode':repeatMode,
+      'repeat_every':repeatEvery,
+      'repeat_count':repeatCount,
       'date':DateFormat('yyyy-MM-dd').format(date),
       'date_finish':DateFormat('yyyy-MM-dd').format(dateFinish),
       'monday':this.monday?1:0,
@@ -57,7 +71,8 @@ class Transaction {
       idAccountTransfer: map['id_account_transfer'],
       amount: map['amount'],
       notes: map['notes'],
-      repeatType: map['repeat_type'],
+      repeatMode: map['repeat_mode'],
+      repeatEvery:map['repeat_every'],
       date: DateFormat('yyyy-MM-dd').parse(map['date']),
       dateFinish: DateFormat('yyyy-MM-dd').parse(map['date_finish']),
       monday: map['monday']=='1',
@@ -122,4 +137,10 @@ class Transaction {
     return db.delete(Transaction.tableName,where: 'id = ?',whereArgs: [id]);
   }
 
+}
+
+enum TransactionType{
+  Transfer,
+  Income,
+  Expense
 }

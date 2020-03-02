@@ -16,4 +16,7 @@ class SharedPrefService {
 
   set showAccountAmount(bool value)=>_prefs.setBool('showAccountAmount', value);
   bool get showAccountAmount =>_prefs.getBool('showAccountAmount')??true;
+
+  set openFirstTimeApp(bool value)=>_prefs.setBool('openFirstTimeApp', value);
+  bool get openFirstTimeApp =>_prefs.getBool('openFirstTimeApp')??true;
 }

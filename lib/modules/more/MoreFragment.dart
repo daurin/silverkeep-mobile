@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:silverkeep/modules/accounts/widgets/AccountsPage.dart';
+import 'package:silverkeep/modules/accounts/AccountsPage.dart';
 import 'package:silverkeep/modules/labels/LabelsPage.dart';
 
 class MoreFragment extends StatelessWidget {

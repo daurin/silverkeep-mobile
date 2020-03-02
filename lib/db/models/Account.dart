@@ -13,7 +13,7 @@ class Account implements Model {
 
   Account({this.id, this.idUser, this.name, this.color,this.orderCustom});
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap({ignoreId=false}) {
     Map<String, dynamic> map = {
       'id': id,
       'id_user': idUser,
@@ -21,6 +21,7 @@ class Account implements Model {
       'color': color,
       'order_custom':orderCustom
     };
+    if(ignoreId)map.remove('id');
     return map;
   }
 
@@ -57,6 +58,19 @@ class Account implements Model {
       },
       where: 'id = ?',whereArgs: [id]
     );
+  }
+
+  static Future<Account> getFirst()async{
+    final  db=DB.db;
+
+    return db.query(Account.tableName,limit: 1,orderBy: 'order_custom asc')
+      .then((res){
+        if(res.length>0){
+          return Account.fromMap(res[0]);
+          //return res.map((v)=>Account.fromMap(v)).toList();
+        }
+        else return null;
+      });
   }
 
   static Future<List<Account>> getAll({String orderBy='order_custom,id asc'})async{

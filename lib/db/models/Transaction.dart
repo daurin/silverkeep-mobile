@@ -10,8 +10,8 @@ class Transaction {
   double amount;
   String notes;
   TransactionType transactionType;
-  String repeatMode;
-  String repeatEvery;
+  TransactionRepeatMode repeatMode;
+  TransactionRepeatEvery repeatEvery;
   int repeatCount;
   DateTime date;
   DateTime dateFinish;
@@ -46,8 +46,26 @@ class Transaction {
           default: return null;
         }
       }(),
-      'repeat_mode':repeatMode,
-      'repeat_every':repeatEvery,
+      'repeat_mode':(){
+        switch (repeatMode) {
+          case TransactionRepeatMode.NotRepeat: return 'notRepeat';
+          case TransactionRepeatMode.EveryDay: return 'everyDay';
+          case TransactionRepeatMode.EveryWeek: return 'everyWeek';
+          case TransactionRepeatMode.EveryMonth: return 'everyMonth';
+          case TransactionRepeatMode.EveryYear: return 'everyYear';
+          case TransactionRepeatMode.Custom: return 'custom';
+          default: return null;
+        }
+      }(),
+      'repeat_every':(){
+        switch (repeatEvery) {
+          case TransactionRepeatEvery.Days:return 'days';
+          case TransactionRepeatEvery.Weeks:return 'weeks';
+          case TransactionRepeatEvery.Months:return 'months';
+          case TransactionRepeatEvery.Years:return 'years';
+          default: return null;
+        }
+      }(),
       'repeat_count':repeatCount,
       'date':DateFormat('yyyy-MM-dd').format(date),
       'date_finish':DateFormat('yyyy-MM-dd').format(dateFinish),
@@ -71,8 +89,34 @@ class Transaction {
       idAccountTransfer: map['id_account_transfer'],
       amount: map['amount'],
       notes: map['notes'],
-      repeatMode: map['repeat_mode'],
-      repeatEvery:map['repeat_every'],
+      transactionType:(){
+        switch (map['transaction_type']) {
+          case 'I': return TransactionType.Income;
+          case 'e': return TransactionType.Expense;
+          case 'T': return TransactionType.Transfer;
+          default: return null;
+        }
+      }(),
+      repeatMode: (){
+        switch (map['repeat_mode']) {
+          case 'notRepeat':return TransactionRepeatMode.NotRepeat;
+          case 'everyDay':return TransactionRepeatMode.EveryDay;
+          case 'everyWeek':return TransactionRepeatMode.EveryWeek;
+          case 'everyMonth':return TransactionRepeatMode.EveryMonth;
+          case 'everyYear':return TransactionRepeatMode.EveryYear;
+          case 'custom':return TransactionRepeatMode.Custom;
+          default: return null;
+        }
+      }(),
+      repeatEvery:(){
+        switch (map['repeat_every']) {
+          case 'days': return TransactionRepeatEvery.Days;
+          case 'months': return TransactionRepeatEvery.Months;
+          case 'days': return TransactionRepeatEvery.Years;
+          case 'years': return TransactionRepeatEvery.Years;
+          default: return null;
+        }
+      }(),
       date: DateFormat('yyyy-MM-dd').parse(map['date']),
       dateFinish: DateFormat('yyyy-MM-dd').parse(map['date_finish']),
       monday: map['monday']=='1',
@@ -143,4 +187,20 @@ enum TransactionType{
   Transfer,
   Income,
   Expense
+}
+
+enum TransactionRepeatMode{
+  NotRepeat,
+  EveryDay,
+  EveryWeek,
+  EveryMonth,
+  EveryYear,
+  Custom
+}
+
+enum TransactionRepeatEvery{
+  Days,
+  Weeks,
+  Months,
+  Years
 }

@@ -32,7 +32,9 @@ class _TransactionPageState extends State<TransactionPage> {
     _transaction=Transaction(
       transactionType: widget.transactionType,
       date: DateTime.now(),
-      repeatMode: 'not'
+      repeatMode: TransactionRepeatMode.NotRepeat,
+      repeatCount: 1,
+      repeatEvery: TransactionRepeatEvery.Days
     );
 
     _account=Account(
@@ -66,10 +68,14 @@ class _TransactionPageState extends State<TransactionPage> {
           }
         }()),
         actions: <Widget>[
-          FlatButton(
-            child: Text('Guardar'),
-            textColor: Theme.of(context).primaryTextTheme.title.color,
-            onPressed: _save
+          ButtonBar(
+            children: <Widget>[
+              FlatButton(
+                child: Text('Guardar'),
+                textColor: Theme.of(context).primaryTextTheme.title.color,
+                onPressed: _save
+              )
+            ],
           )
         ],
       ),
@@ -116,7 +122,17 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
           ListTile(
             leading: Icon(Icons.repeat),
-            title: Text(_transaction.repeatMode),
+            title: Text((){
+              switch (_transaction.repeatMode) {
+                case TransactionRepeatMode.NotRepeat: return 'No se repite';
+                case TransactionRepeatMode.EveryDay: return 'Todos los dias';
+                case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
+                case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
+                case TransactionRepeatMode.EveryYear: return 'Todos los años';
+                case TransactionRepeatMode.Custom: return 'Personalizacion';
+                default: return 'Todos los dias';
+              }
+            }()),
             onTap: _onTabRepeat,
           ),
           Divider(),
@@ -125,7 +141,7 @@ class _TransactionPageState extends State<TransactionPage> {
             title: Text('Notificacion'),
             onTap: _onTabNotification,
           ),
-          Visibility(visible: _transaction.transactionType==TransactionType.Transfer,child: Divider()),
+          Visibility(visible: _transaction.transactionType!=TransactionType.Transfer,child: Divider()),
           Visibility(
             visible: _transaction.transactionType!=TransactionType.Transfer,
             child: ListTile(
@@ -240,40 +256,49 @@ class _TransactionPageState extends State<TransactionPage> {
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Map<String,dynamic>>[
                 {
-                  'value':'not',
-                  'title':'No se repite',
+                  'value':TransactionRepeatMode.NotRepeat,
+                  'label':'No se repite',
                 },
                 {
-                  'value':'everyday',
-                  'title':'Todos los dias',
+                  'value':TransactionRepeatMode.EveryDay,
+                  'label':'Todos los dias',
                 },
                 {
-                  'value':'everyweek',
-                  'title':'Todas las semanas',
+                  'value':TransactionRepeatMode.EveryWeek,
+                  'label':'Todas las semanas',
                 },
                 {
-                  'value':'everymonth',
-                  'title':'Todos los meses',
+                  'value':TransactionRepeatMode.EveryMonth,
+                  'label':'Todos los meses',
                 },
                 {
-                  'value':'everyyear',
-                  'title':'Todos los años',
+                  'value':TransactionRepeatMode.EveryYear,
+                  'label':'Todos los años',
                 },
                 {
-                  'value':'custom',
-                  'title':'Personalizacion',
+                  'value':TransactionRepeatMode.Custom,
+                  'label':'Personalizacion',
                 },
               ].map((v){
-                return RadioListTile<String>(
+                return RadioListTile<TransactionRepeatMode>(
                   value: v['value'],
                   groupValue: _transaction.repeatMode,
-                  onChanged: (String value){
-                    if(value=='custom'){
+                  onChanged: (TransactionRepeatMode value){
+                    if(value==TransactionRepeatMode.Custom){
                       Navigator.pushReplacement(context,MaterialPageRoute(
-                        builder: (BuildContext context) => CustomNotificationPage()
-                      ));
+                        builder: (BuildContext context) => CustomNotificationPage(
+                          transaction: _transaction,
+                        )
+                      ))
+                        .then((value){
+                          if(value!=null){
+                            setState(() {
+                              _transaction=value;
+                            });
+                          }
+                        });
                     }
                     else{
                       setState(() {
@@ -282,7 +307,7 @@ class _TransactionPageState extends State<TransactionPage> {
                       Navigator.pop(context);
                     }
                   },
-                  title: Text(v['title']),
+                  title: Text(v['label']),
                 );
               }).toList()
             ),

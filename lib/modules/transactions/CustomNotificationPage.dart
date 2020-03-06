@@ -1,19 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:silverkeep/db/models/Transaction.dart';
 
 class CustomNotificationPage extends StatefulWidget {
-  CustomNotificationPage({Key key}) : super(key: key);
+  
+  final Transaction transaction; 
+
+  const CustomNotificationPage({Key key,this.transaction}) : super(key: key);
 
   @override
   _CustomNotificationPageState createState() => _CustomNotificationPageState();
 }
 
 class _CustomNotificationPageState extends State<CustomNotificationPage> {
-  
-  bool _monday=false,_tuesday=false,_wednesday=false,_thursday=false,_friday=false,_saturday=false,_sunday=false;
+
+  TextEditingController _textController;
+
+  Transaction _transaction;
+  DateTime _dateFinish;
 
   @override
   void initState() {
     super.initState();
+
+    _transaction=widget.transaction;
+    if(_transaction.repeatEvery==null)_transaction.repeatEvery=TransactionRepeatEvery.Days;
+    if(_transaction.monday==null)_transaction.monday=false;
+    if(_transaction.tuesday==null)_transaction.tuesday=false;
+    if(_transaction.saturday==null)_transaction.saturday=false;
+    if(_transaction.thursday==null)_transaction.thursday=false;
+    if(_transaction.wednesday==null)_transaction.wednesday=false;
+    if(_transaction.sunday==null)_transaction.sunday=false;
+    if(_transaction.friday==null)_transaction.friday=false;
+
+    if(_transaction.dateFinish!=null)_dateFinish=_transaction.dateFinish;
+    else _dateFinish=DateTime.now().add(Duration(days: 30));
+
+    _textController=TextEditingController(text: _transaction.repeatCount.toString());
   }
 
   @override
@@ -31,60 +55,149 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
       ),
       body: ListView(
         children: <Widget>[
-          _buildLabel(
-            text:'SE REPITE CADA'
-          ),
+          _buildLabel('Se repite cada dia'),
           ListTile(
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                _buildContainer(
+                Container(
                   width: 60,
                   child: TextField(
+                    controller: _textController,
+                    keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration.collapsed(
-                      hintText: ''
+                      hintText: '',
+                      border: UnderlineInputBorder()
                     ),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(2),
+                      WhitelistingTextInputFormatter.digitsOnly,
+                      TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
+                        if(newValue.text.length==0)return newValue;
+                        if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
+                        return newValue;
+                      })
+                    ],
+                    onChanged: (String text)=>setState(()=>_transaction.repeatCount=int.parse(text)),
                   ),
                 ),
                 SizedBox(width: 13,),
-                IntrinsicWidth(
-                  child: _buildContainer(
+                Material(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.red,
+                  child: Container(
+                    height: 45,
                     child: PopupMenuButton(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           SizedBox(width: 6,),
-                          Text('Dia'),
+                          Text((){
+                            switch (_transaction.repeatEvery) {
+                              case TransactionRepeatEvery.Days:return 'Dias';
+                              case TransactionRepeatEvery.Weeks:return 'Semanas';
+                              case TransactionRepeatEvery.Months:return 'Meses';
+                              case TransactionRepeatEvery.Years:return 'Años';
+                              default: return '';
+                            }
+                          }()),
                           Icon(Icons.arrow_drop_down),
                         ],
                       ),
-                      itemBuilder: (_) => <PopupMenuItem<String>>[
-                        new PopupMenuItem<String>(child: const Text('Dias'), value: 'Doge'),
-                        new PopupMenuItem<String>(child: const Text('Semanas'), value: 'Lion'),
-                        new PopupMenuItem<String>(child: const Text('Meses'), value: 'Lion'),
-                        new PopupMenuItem<String>(child: const Text('Años'), value: 'Lion')
-                      ],
-                    )
+                      itemBuilder: (BuildContext context){
+                        return <PopupMenuItem<TransactionRepeatEvery>>[
+                          new PopupMenuItem<TransactionRepeatEvery>(
+                            child: const Text('Dias'), value: TransactionRepeatEvery.Days
+                          ),
+                          new PopupMenuItem<TransactionRepeatEvery>(
+                            child: const Text('Semanas'), value: TransactionRepeatEvery.Weeks
+                          ),
+                          new PopupMenuItem<TransactionRepeatEvery>(
+                            child: const Text('Meses'), value: TransactionRepeatEvery.Months
+                          ),
+                          new PopupMenuItem<TransactionRepeatEvery>(
+                            child: const Text('Años'), value: TransactionRepeatEvery.Years
+                          ),
+                        ];                    
+                      },
+                      onSelected: (TransactionRepeatEvery value)=>setState(()=>_transaction.repeatEvery=value),
+                    ),
                   ),
-                ),
+                )
               ],
             ),
           ),
+          Visibility(
+            visible: _transaction.repeatEvery==TransactionRepeatEvery.Weeks,
+            child: _buildWeekRepeat(),
+          ),
           Divider(),
-          _buildLabel(text: 'SE REPITE EL'),
+          _buildLabel('Finaliza'),
+          RadioListTile<DateTime>(
+            value: null,
+            groupValue: _transaction.dateFinish,
+            title: Text('Nunca'),
+            onChanged: _onChangeDateFinish
+          ),
+          RadioListTile<DateTime>(
+            value: _dateFinish,
+            groupValue: _transaction.dateFinish,
+            title: Row(
+              children: <Widget>[
+                Text('El '),
+                GestureDetector(
+                  onTap: _transaction.dateFinish==null?null:_onTabDateFinish,
+                  child: IntrinsicWidth(
+                    child: _buildContainer(
+                      child: Text(DateFormat.yMMMMEEEEd().format(_dateFinish),
+                        // style: Theme.of(context).textTheme.subhead.copyWith(
+                        //   color: _transaction.dateFinish==null?
+                        //     Theme.of(context).hintColor:
+                        //     Theme.of(context).textTheme.subhead.color
+                        // )
+                      )
+                    ),
+                  ),
+                )
+              ],
+            ),
+            secondary: IconButton(
+              icon: Icon(Icons.date_range),
+              onPressed: _onTabDateFinish
+            ),
+            onChanged: _onChangeDateFinish
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text){
+    return ListTile(
+      title:Text(text.toUpperCase(),style: Theme.of(context).textTheme.subtitle,),
+    );
+  }
+
+  Widget _buildWeekRepeat(){
+    return Container(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Divider(),
+          _buildLabel('Se repite el'),
           ListTile(
             title: Wrap(
               spacing: 7,
               runSpacing: 7,
               children: <Widget>[
-                _buildCircleCheck(text: 'L',selected: _monday,onTab: ()=>setState(()=>_monday=!_monday)),
-                _buildCircleCheck(text: 'M',selected: _tuesday,onTab: ()=>setState(()=>_tuesday=!_tuesday)),
-                _buildCircleCheck(text: 'M',selected: _wednesday,onTab: ()=>setState(()=>_wednesday=!_wednesday)),
-                _buildCircleCheck(text: 'J',selected: _thursday,onTab: ()=>setState(()=>_thursday=!_thursday)),
-                _buildCircleCheck(text: 'V',selected: _friday,onTab: ()=>setState(()=>_friday=!_friday)),
-                _buildCircleCheck(text: 'S',selected: _saturday,onTab: ()=>setState(()=>_saturday=!_saturday)),
-                _buildCircleCheck(text: 'D',selected: _sunday,onTab: ()=>setState(()=>_sunday=!_sunday)),
+                _buildCircleCheck(text: 'L',selected: _transaction.monday,onTab: ()=>setState(()=>_transaction.monday=!_transaction.monday)),
+                _buildCircleCheck(text: 'M',selected: _transaction.tuesday,onTab: ()=>setState(()=>_transaction.tuesday=!_transaction.tuesday)),
+                _buildCircleCheck(text: 'M',selected: _transaction.wednesday,onTab: ()=>setState(()=>_transaction.wednesday=!_transaction.wednesday)),
+                _buildCircleCheck(text: 'J',selected: _transaction.thursday,onTab: ()=>setState(()=>_transaction.thursday=!_transaction.thursday)),
+                _buildCircleCheck(text: 'V',selected: _transaction.friday,onTab: ()=>setState(()=>_transaction.friday=!_transaction.friday)),
+                _buildCircleCheck(text: 'S',selected: _transaction.saturday,onTab: ()=>setState(()=>_transaction.saturday=!_transaction.saturday)),
+                _buildCircleCheck(text: 'D',selected: _transaction.sunday,onTab: ()=>setState(()=>_transaction.sunday=!_transaction.sunday)),
               ],
             ),
           )
@@ -93,20 +206,18 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     );
   }
 
-  Widget _buildLabel({String text}){
-    return InkWell(
-      onTap: (){
-
-      },
-      enableFeedback: true,
-      child: Container(
-        height: 45,
-        child: ListTile(
-          title:Text(text,style: Theme.of(context).textTheme.subtitle,),
-        ),
-      ),
-    );
-  }
+  // Widget _buildMonthRepeat(){
+  //   return Container(
+  //     child: Column(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: <Widget>[
+  //         Divider(),
+  //         _buildLabel(text: '')
+  //         Divider()
+  //       ],
+  //     ),
+  //   );
+  //}
 
   Widget _buildContainer({Widget child,double width}){
     return Container(
@@ -119,7 +230,9 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
       ),
       child: LimitedBox(
         maxWidth: 100,
-        child: Center(child: child)
+        child: Center(
+          child: child
+        )
       ),
     );
   }
@@ -140,7 +253,36 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     );
   }
 
-  void _onSubmit(){
+  void _onChangeDateFinish(DateTime date){
+    setState((){
+      if(date!=null)_dateFinish=date;
+      _transaction.dateFinish=date;
+    });
+  }
 
+  void _onTabDateFinish (){
+    showDatePicker(
+      context: context,
+      initialDate: _transaction.dateFinish??DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now().add(Duration(days: 36500))
+    )
+    .then((DateTime date){
+      if(date!=null){
+        setState(() {
+          setState((){
+            if(date!=null)_dateFinish=date;
+            _transaction.dateFinish=date;
+          });
+        });
+      }
+    });
+  }
+
+  void _onSubmit(){
+    if(_transaction.repeatCount.toString().length==0){
+      _transaction.repeatCount=1;
+    }
+    Navigator.pop(context,_transaction);
   }
 }

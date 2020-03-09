@@ -15,6 +15,8 @@ class CustomNotificationPage extends StatefulWidget {
 
 class _CustomNotificationPageState extends State<CustomNotificationPage> {
 
+  FocusNode _focusNode;
+
   TextEditingController _textController;
 
   Transaction _transaction;
@@ -23,6 +25,12 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
   @override
   void initState() {
     super.initState();
+
+    _focusNode=FocusNode();
+    _focusNode.addListener((){
+      if(_focusNode.hasFocus)
+        _textController.selection=TextSelection(baseOffset: 0, extentOffset: _textController.text.length);
+    });
 
     _transaction=widget.transaction;
     if(_transaction.repeatEvery==null)_transaction.repeatEvery=TransactionRepeatEvery.Days;
@@ -38,6 +46,14 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     else _dateFinish=DateTime.now().add(Duration(days: 30));
 
     _textController=TextEditingController(text: _transaction.repeatCount.toString());
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    _focusNode.dispose();
   }
 
   @override
@@ -61,14 +77,16 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
-                  width: 60,
+                  width: 48,
                   child: TextField(
                     controller: _textController,
+                    focusNode: _focusNode,
                     keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration.collapsed(
                       hintText: '',
-                      border: UnderlineInputBorder()
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.grey.shade200,
                     ),
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(2),
@@ -83,45 +101,47 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
                   ),
                 ),
                 SizedBox(width: 13,),
-                Material(
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.red,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
                   child: Container(
-                    height: 45,
-                    child: PopupMenuButton(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          SizedBox(width: 6,),
-                          Text((){
-                            switch (_transaction.repeatEvery) {
-                              case TransactionRepeatEvery.Days:return 'Dias';
-                              case TransactionRepeatEvery.Weeks:return 'Semanas';
-                              case TransactionRepeatEvery.Months:return 'Meses';
-                              case TransactionRepeatEvery.Years:return 'Años';
-                              default: return '';
-                            }
-                          }()),
-                          Icon(Icons.arrow_drop_down),
-                        ],
+                    height: 48,
+                    child: Material(
+                      color: Colors.grey.shade200,
+                      child: PopupMenuButton(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            SizedBox(width: 6,),
+                            Text((){
+                              switch (_transaction.repeatEvery) {
+                                case TransactionRepeatEvery.Days:return 'Dias';
+                                case TransactionRepeatEvery.Weeks:return 'Semanas';
+                                case TransactionRepeatEvery.Months:return 'Meses';
+                                case TransactionRepeatEvery.Years:return 'Años';
+                                default: return '';
+                              }
+                            }()),
+                            Icon(Icons.arrow_drop_down),
+                          ],
+                        ),
+                        itemBuilder: (BuildContext context){
+                          return <PopupMenuItem<TransactionRepeatEvery>>[
+                            new PopupMenuItem<TransactionRepeatEvery>(
+                              child: const Text('Dias'), value: TransactionRepeatEvery.Days
+                            ),
+                            new PopupMenuItem<TransactionRepeatEvery>(
+                              child: const Text('Semanas'), value: TransactionRepeatEvery.Weeks
+                            ),
+                            new PopupMenuItem<TransactionRepeatEvery>(
+                              child: const Text('Meses'), value: TransactionRepeatEvery.Months
+                            ),
+                            new PopupMenuItem<TransactionRepeatEvery>(
+                              child: const Text('Años'), value: TransactionRepeatEvery.Years
+                            ),
+                          ];                    
+                        },
+                        onSelected: (TransactionRepeatEvery value)=>setState(()=>_transaction.repeatEvery=value),
                       ),
-                      itemBuilder: (BuildContext context){
-                        return <PopupMenuItem<TransactionRepeatEvery>>[
-                          new PopupMenuItem<TransactionRepeatEvery>(
-                            child: const Text('Dias'), value: TransactionRepeatEvery.Days
-                          ),
-                          new PopupMenuItem<TransactionRepeatEvery>(
-                            child: const Text('Semanas'), value: TransactionRepeatEvery.Weeks
-                          ),
-                          new PopupMenuItem<TransactionRepeatEvery>(
-                            child: const Text('Meses'), value: TransactionRepeatEvery.Months
-                          ),
-                          new PopupMenuItem<TransactionRepeatEvery>(
-                            child: const Text('Años'), value: TransactionRepeatEvery.Years
-                          ),
-                        ];                    
-                      },
-                      onSelected: (TransactionRepeatEvery value)=>setState(()=>_transaction.repeatEvery=value),
                     ),
                   ),
                 )
@@ -143,24 +163,13 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
           RadioListTile<DateTime>(
             value: _dateFinish,
             groupValue: _transaction.dateFinish,
-            title: Row(
-              children: <Widget>[
-                Text('El '),
-                GestureDetector(
-                  onTap: _transaction.dateFinish==null?null:_onTabDateFinish,
-                  child: IntrinsicWidth(
-                    child: _buildContainer(
-                      child: Text(DateFormat.yMMMMEEEEd().format(_dateFinish),
-                        // style: Theme.of(context).textTheme.subhead.copyWith(
-                        //   color: _transaction.dateFinish==null?
-                        //     Theme.of(context).hintColor:
-                        //     Theme.of(context).textTheme.subhead.color
-                        // )
-                      )
-                    ),
-                  ),
-                )
-              ],
+            title: GestureDetector(
+              child: Row(
+                children: <Widget>[
+                  Text('El ${DateFormat.yMMMMEEEEd().format(_dateFinish)}'),
+                ],
+              ),
+              onTap: _onTabDateFinish,
             ),
             secondary: IconButton(
               icon: Icon(Icons.date_range),
@@ -283,6 +292,7 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     if(_transaction.repeatCount.toString().length==0){
       _transaction.repeatCount=1;
     }
+    _transaction.repeatMode=TransactionRepeatMode.Custom;
     Navigator.pop(context,_transaction);
   }
 }

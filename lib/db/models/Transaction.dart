@@ -22,13 +22,17 @@ class Transaction {
   bool friday;
   bool saturday;
   bool sunday;
+  NotifyTimeType notifyTimeType;
+  int notifyTimes;
+
 
 
   static String tableName = 'TRANSACTION';
 
   Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.notes,this.transactionType,
   this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
-  this.dateFinish,this.monday,this.tuesday,this.wednesday,this.thursday,this.friday,this.saturday,this.sunday});
+  this.dateFinish,this.monday,this.tuesday,this.wednesday,this.thursday,this.friday,this.saturday,this.sunday,
+  this.notifyTimeType,this.notifyTimes});
 
   Map<String, dynamic> toMap({ignoreId=false}) {
     Map<String, dynamic> map = {
@@ -76,7 +80,18 @@ class Transaction {
       'friday':this.friday?1:0,
       'saturday':this.saturday?1:0,
       'sunday':this.sunday?1:0,
+      'notify_time_type':(){
+        switch (notifyTimeType) {
+          case NotifyTimeType.Minutes:return 'months';
+          case NotifyTimeType.Hours:return 'years';
+          case NotifyTimeType.Days:return 'days';
+          case NotifyTimeType.Weeks:return 'weeks';
+          default: return null;
+        }
+      }(),
+      'notify_times':this.notifyTimes
     };
+
     if(ignoreId)map.remove('id');
     return map;
   }
@@ -126,6 +141,15 @@ class Transaction {
       friday: map['friday']=='1',
       saturday: map['saturday']=='1',
       sunday: map['sunday']=='1',
+      notifyTimeType: (){
+        switch (map['notify_time_type']) {
+          case 'minutes': return NotifyTimeType.Minutes;
+          case 'hours': return NotifyTimeType.Hours;
+          case 'days': return NotifyTimeType.Days;
+          case 'weeks': return NotifyTimeType.Weeks;
+          default: return null;
+        }
+      }()
     );
   }
 
@@ -203,4 +227,11 @@ enum TransactionRepeatEvery{
   Weeks,
   Months,
   Years
+}
+
+enum NotifyTimeType{
+  Minutes,
+  Hours,
+  Days,
+  Weeks
 }

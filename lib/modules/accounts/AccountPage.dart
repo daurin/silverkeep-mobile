@@ -156,14 +156,6 @@ class _AccountPageState extends State<AccountPage> {
         //   child: Icon(MdiIcons.contentSaveOutline),
         //   onPressed: _save
         // ),
-        bottomNavigationBar: Container(
-          height: kBottomNavigationBarHeight,
-          child: RaisedButton(
-            child: Text('Guardar',style: TextStyle(fontSize: 16),),
-            textColor: Theme.of(context).primaryTextTheme.title.color,
-            onPressed: _save
-          ),
-        ),
       ),
     );
   }

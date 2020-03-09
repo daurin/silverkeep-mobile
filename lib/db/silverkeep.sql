@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS "TRANSACTION" (
 	"friday"	INTEGER NOT NULL DEFAULT 0,
 	"saturday"	INTEGER NOT NULL DEFAULT 0,
 	"sunday"	INTEGER NOT NULL DEFAULT 0,
+	"notify_time_type"	INTEGER,
+	"notify_times"	INTEGER,
 	FOREIGN KEY("id_user") REFERENCES "USER"("id"),
 	FOREIGN KEY("id_account") REFERENCES "ACCOUNT"("id")
 );
@@ -53,3 +55,5 @@ CREATE TABLE IF NOT EXISTS "TRANSACTION_LABEL" (
 	FOREIGN KEY("id_transaction") REFERENCES "TRANSACTION_LABEL"("id"),
 	FOREIGN KEY("id_label") REFERENCES "LABEL"("id")
 );
+INSERT INTO "USER" ("id","first_name","last_name","email","password") VALUES (1,NULL,NULL,NULL,NULL),
+ (2,'Invitado',NULL,NULL,NULL);

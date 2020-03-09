@@ -34,7 +34,9 @@ class _TransactionPageState extends State<TransactionPage> {
       date: DateTime.now(),
       repeatMode: TransactionRepeatMode.NotRepeat,
       repeatCount: 1,
-      repeatEvery: TransactionRepeatEvery.Days
+      repeatEvery: TransactionRepeatEvery.Days,
+      notifyTimeType: NotifyTimeType.Minutes,
+      notifyTimes: 10
     );
 
     _account=Account(
@@ -122,23 +124,23 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
           ListTile(
             leading: Icon(Icons.repeat),
-            title: Text((){
-              switch (_transaction.repeatMode) {
-                case TransactionRepeatMode.NotRepeat: return 'No se repite';
-                case TransactionRepeatMode.EveryDay: return 'Todos los dias';
-                case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
-                case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
-                case TransactionRepeatMode.EveryYear: return 'Todos los años';
-                case TransactionRepeatMode.Custom: return 'Personalizacion';
-                default: return 'Todos los dias';
-              }
-            }()),
+            title: Text(_getTitleRepeat(_transaction.repeatMode,repeatCount: _transaction.repeatCount)),
+            subtitle: Text('Recurrencia'),
             onTap: _onTabRepeat,
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.notifications_none),
-            title: Text('Notificacion'),
+            title: Text((){
+              switch (_transaction.notifyTimeType) {
+                case NotifyTimeType.Minutes: return '${_transaction.notifyTimes} minutos antes';
+                case NotifyTimeType.Hours: return '${_transaction.notifyTimes} horas antes';
+                case NotifyTimeType.Days: return '${_transaction.notifyTimes} dias antes';
+                case NotifyTimeType.Weeks: return '${_transaction.notifyTimes} semanas antes';
+                default: return 'Sin notificación';
+              }
+            }()),
+            subtitle: Text('Notificacion'),
             onTap: _onTabNotification,
           ),
           Visibility(visible: _transaction.transactionType!=TransactionType.Transfer,child: Divider()),
@@ -146,7 +148,7 @@ class _TransactionPageState extends State<TransactionPage> {
             visible: _transaction.transactionType!=TransactionType.Transfer,
             child: ListTile(
               leading: Icon(Icons.label_outline),
-              title: Wrap(
+              title: false?Wrap(
                 spacing: 10,
                 children: <Widget>[
                   Chip(
@@ -160,7 +162,7 @@ class _TransactionPageState extends State<TransactionPage> {
                     shape: StadiumBorder(side: BorderSide(color: Colors.grey)),
                   ),
                 ],
-              ),
+              ):Text('Etiquetas'),
               //isThreeLine: true,
               onTap: _onTabLabels,
             ),
@@ -247,67 +249,98 @@ class _TransactionPageState extends State<TransactionPage> {
     });
   }
 
+  _getTitleRepeat(TransactionRepeatMode repeatMode,{int repeatCount}){
+    switch (repeatMode) {
+      case TransactionRepeatMode.NotRepeat: return 'No se repite';
+      case TransactionRepeatMode.EveryDay: return 'Todos los dias';
+      case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
+      case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
+      case TransactionRepeatMode.EveryYear: return 'Todos los años';
+      case TransactionRepeatMode.Custom:
+        String label='Se repite ';
+        if(_transaction.repeatEvery==TransactionRepeatEvery.Days)label+='cada ${_transaction.repeatCount} dias';
+        if(_transaction.repeatEvery==TransactionRepeatEvery.Weeks)label+='cada ${_transaction.repeatCount} semanas';
+        if(_transaction.repeatEvery==TransactionRepeatEvery.Months)label+='cada ${_transaction.repeatCount} meses';
+        if(_transaction.repeatEvery==TransactionRepeatEvery.Years)label+='cada ${_transaction.repeatCount} años';
+        return label;
+      default: return 'Todos los dias';
+    }
+  }
   void _onTabRepeat(){
     showDialog(
       context: context,
       builder: (context){
+        List<Map<String,dynamic>> items=[];
+        if(_transaction.repeatMode==TransactionRepeatMode.Custom) {
+          items.add(
+            {
+              'value':TransactionRepeatMode.Custom,
+              'label':_getTitleRepeat(TransactionRepeatMode.Custom,repeatCount: _transaction.repeatCount)
+            }
+          );
+        }
+
+        items.addAll([
+          {
+            'value':TransactionRepeatMode.NotRepeat,
+            'label':_getTitleRepeat(TransactionRepeatMode.NotRepeat),
+          },
+          {
+            'value':TransactionRepeatMode.EveryDay,
+            'label':_getTitleRepeat(TransactionRepeatMode.EveryDay),
+          },
+          {
+            'value':TransactionRepeatMode.EveryWeek,
+            'label':_getTitleRepeat(TransactionRepeatMode.EveryWeek),
+          },
+          {
+            'value':TransactionRepeatMode.EveryMonth,
+            'label':_getTitleRepeat(TransactionRepeatMode.EveryMonth),
+          },
+          {
+            'value':TransactionRepeatMode.EveryYear,
+            'label':_getTitleRepeat(TransactionRepeatMode.EveryYear),
+          },
+          {
+            'value':null,
+            'label':'Personalizado',
+          },
+        ]);
+
         return AlertDialog(
           contentPadding: EdgeInsets.zero,
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: <Map<String,dynamic>>[
-                {
-                  'value':TransactionRepeatMode.NotRepeat,
-                  'label':'No se repite',
-                },
-                {
-                  'value':TransactionRepeatMode.EveryDay,
-                  'label':'Todos los dias',
-                },
-                {
-                  'value':TransactionRepeatMode.EveryWeek,
-                  'label':'Todas las semanas',
-                },
-                {
-                  'value':TransactionRepeatMode.EveryMonth,
-                  'label':'Todos los meses',
-                },
-                {
-                  'value':TransactionRepeatMode.EveryYear,
-                  'label':'Todos los años',
-                },
-                {
-                  'value':TransactionRepeatMode.Custom,
-                  'label':'Personalizacion',
-                },
-              ].map((v){
-                return RadioListTile<TransactionRepeatMode>(
-                  value: v['value'],
-                  groupValue: _transaction.repeatMode,
-                  onChanged: (TransactionRepeatMode value){
-                    if(value==TransactionRepeatMode.Custom){
-                      Navigator.pushReplacement(context,MaterialPageRoute(
-                        builder: (BuildContext context) => CustomNotificationPage(
-                          transaction: _transaction,
-                        )
-                      ))
-                        .then((value){
-                          if(value!=null){
-                            setState(() {
-                              _transaction=value;
-                            });
-                          }
+              children: items.map((v){
+                return GestureDetector(
+                  child: RadioListTile<TransactionRepeatMode>(
+                    value: v['value'],
+                    groupValue: _transaction.repeatMode,
+                    onChanged: (TransactionRepeatMode value){
+                      if(value==null){
+                        Navigator.pushReplacement(context,MaterialPageRoute(
+                          builder: (BuildContext context) => CustomNotificationPage(
+                            transaction: _transaction,
+                          )
+                        ))
+                          .then((value){
+                            if(value!=null){
+                              setState(() {
+                                _transaction=value;
+                              });
+                            }
+                          });
+                      }
+                      else{
+                        setState(() {
+                          _transaction.repeatMode=value;
                         });
-                    }
-                    else{
-                      setState(() {
-                        _transaction.repeatMode=value;
-                      });
-                      Navigator.pop(context);
-                    }
-                  },
-                  title: Text(v['label']),
+                        Navigator.pop(context);
+                      }
+                    },
+                    title: Text(v['label']),
+                  ),
                 );
               }).toList()
             ),
@@ -318,7 +351,136 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   void _onTabNotification(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context){
+        TextEditingController textController=TextEditingController(
+          text: _transaction.notifyTimes.toInt().toString()
+        );
+        FocusNode focusNode=FocusNode();
+        focusNode.addListener((){
+          if(focusNode.hasFocus)
+            textController.selection=TextSelection(baseOffset: 0, extentOffset: textController.text.length);
+        });
 
+        bool textEnabled=_transaction.notifyTimeType!=null;
+        NotifyTimeType notifyTimeType=_transaction.notifyTimeType;
+
+        return StatefulBuilder(builder: (context,setStateDialog){
+          return AlertDialog(
+            contentPadding: EdgeInsets.symmetric(vertical: 20,horizontal: 0),
+            title: Text('Notificación'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  title: TextField(
+                    controller: textController,
+                    focusNode: focusNode,
+                    keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
+                    enabled: textEnabled,
+                    decoration: InputDecoration.collapsed(
+                      hintText: '',
+                      border: UnderlineInputBorder()
+                    ),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter((){
+                        switch (notifyTimeType) {
+                          case NotifyTimeType.Minutes:
+                          case NotifyTimeType.Hours:
+                            return 3;
+                          case NotifyTimeType.Days:return 2;
+                          case NotifyTimeType.Weeks:default:return 1;
+                        }
+                      }()),
+                      WhitelistingTextInputFormatter.digitsOnly,
+                      TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
+                        if(newValue.text.length==0)return newValue;
+                        if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
+                        
+                        int newNum=int.parse(newValue.text);
+                        switch (notifyTimeType) {
+                          case NotifyTimeType.Minutes: return newNum>600 ? newValue.copyWith(text: '600'):newValue;
+                          case NotifyTimeType.Hours: return newNum>120 ? newValue.copyWith(text: '120'):newValue;
+                          case NotifyTimeType.Days: return newNum>28 ? newValue.copyWith(text: '28'):newValue;
+                          case NotifyTimeType.Weeks: return newNum>4 ? newValue.copyWith(text: '4'):newValue;
+                          default:return newValue;
+                        }
+                      })
+                    ],
+                  ),
+                ),
+                SizedBox(height: 13),
+                ...[
+                    {
+                      'value':null,
+                      'label':'Sin notificación',
+                    },
+                    {
+                      'value':NotifyTimeType.Minutes,
+                      'label':'Minutos antes',
+                    },
+                    {
+                      'value':NotifyTimeType.Hours,
+                      'label':'Horas antes',
+                    },
+                    {
+                      'value':NotifyTimeType.Days,
+                      'label':'Dias antes',
+                    },
+                    {
+                      'value':NotifyTimeType.Weeks,
+                      'label':'Semanas antes',
+                    },
+                ].map((v){
+                  return RadioListTile<NotifyTimeType>(
+                    value: v['value'],
+                    groupValue: notifyTimeType,
+                    onChanged: (NotifyTimeType value){
+                      setStateDialog(() {
+                        notifyTimeType=value;
+                        textEnabled=value!=null;
+                      });
+
+                      int number=int.parse(textController.text.length==0?'1':textController.text);
+                      switch (notifyTimeType) {
+                        case NotifyTimeType.Hours:
+                          if(number>120) textController.text='120';
+                          break;
+                        case NotifyTimeType.Days:
+                          if(number>28)textController.text='28';
+                          break;
+                        case NotifyTimeType.Weeks:
+                          if(number>4)textController.text='4';
+                          break;
+                        case NotifyTimeType.Minutes: default: break;
+                      }
+                    },
+                    title: Text(v['label']),
+                  );
+                }).toList()
+              ]
+            ),
+            actions: <Widget>[
+              ButtonBar(
+                children: <Widget>[
+                  FlatButton(
+                    child: Text('Listo'),
+                    onPressed: (){
+                      setState(() {
+                        _transaction.notifyTimes=int.parse(textController.text.length==0?'1':textController.text);
+                        _transaction.notifyTimeType=notifyTimeType;
+                      });
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              )
+            ],
+          );
+        });
+      }
+    );
   }
 
   void _onTabLabels(){

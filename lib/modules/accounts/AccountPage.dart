@@ -6,7 +6,6 @@ import 'package:silverkeep/db/models/Account.dart';
 import 'package:silverkeep/enums/PageMode.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsDialog.dart';
-import 'package:silverkeep/utils/NumberInputFormatter2.dart';
 
 class AccountPage extends StatefulWidget {
 
@@ -62,8 +61,9 @@ class _AccountPageState extends State<AccountPage> {
     if(_loading)return Container();
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        primaryColor: ColorsApp(context).getColorDataByKey(_account.color)['color']
+      data: ThemeData(
+        primaryColor: ColorsApp(context).getColorDataByKey(_account.color)['color']??Theme.of(context).primaryColor,
+        
       ),
       child: Scaffold(
         appBar: AppBar(

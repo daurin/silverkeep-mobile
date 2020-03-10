@@ -290,8 +290,8 @@ class _LabelsPageState extends State<LabelsPage> {
             onPressed: (){
               if(focused){
                 Label.deleteById(label.id);
-                if(label.type=='I')_loadIncomesItems();
-                if(label.type=='E')_loadExpenseItems();
+                if(label.type==LabelType.Income)_loadIncomesItems();
+                if(label.type==LabelType.Expense)_loadExpenseItems();
               }
               else focusNode.requestFocus();
             },
@@ -326,7 +326,7 @@ class _LabelsPageState extends State<LabelsPage> {
               ),
               IconButton(
                 icon:focused?
-                  Icon(Icons.check,color: Theme.of(context).primaryColor,):
+                  Icon(Icons.check,color: Theme.of(context).accentColor):
                   Icon(Icons.edit,),
                 onPressed: (){
                   if(focused){
@@ -339,8 +339,8 @@ class _LabelsPageState extends State<LabelsPage> {
                     Label.editById(label,label.id)
                     .then((value){
                       focusNode.unfocus();
-                      if(label.type=='I')_loadIncomesItems();
-                      if(label.type=='E')_loadExpenseItems();
+                      if(label.type==LabelType.Income)_loadIncomesItems();
+                      if(label.type==LabelType.Expense)_loadExpenseItems();
                     });
                   }
                   else focusNode.requestFocus();
@@ -368,7 +368,7 @@ class _LabelsPageState extends State<LabelsPage> {
     Label.add(new Label(
       name: _incomeAddController.text.trim(),
       color: _incomeColor,
-      type: 'I'
+      type: LabelType.Income
     ))
       .then((value){
         _incomeAddController.text='';
@@ -396,7 +396,7 @@ class _LabelsPageState extends State<LabelsPage> {
     Label.add(new Label(
       name: _expenseAddController.text.trim(),
       color: _expenseColor,
-      type: 'E'
+      type: LabelType.Expense
     ))
       .then((value){
         _expenseAddController.text='';

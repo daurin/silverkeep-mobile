@@ -25,10 +25,18 @@ final ButtonThemeData _buttonTheme=ButtonThemeData(
 // Themes
 final ThemeData themeLight=new ThemeData(
   brightness: Brightness.light,
-  primaryColor: Colors.lightBlue[600],
-  accentColor: Colors.redAccent,
-  buttonTheme: _buttonTheme,
+  primaryColor: Colors.white,
+  accentColor: Colors.blueAccent,
   fontFamily: _fontFamily,
+  // appBarTheme: AppBarTheme(
+  //   iconTheme: IconThemeData(
+  //     color: Colors.black
+  //   ),
+  //   color: Colors.white,
+  //   textTheme: ThemeData().textTheme.copyWith(
+  //     title: ThemeData().textTheme.title.copyWith(fontSize: 20,fontWeight: FontWeight.w400,color:Colors.black)
+  //   )
+  // ),
   textTheme: TextTheme(
     body1: TextStyle(fontWeight: FontWeight.w500),
     body2: TextStyle(fontWeight: FontWeight.w500),

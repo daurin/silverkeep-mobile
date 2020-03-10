@@ -13,7 +13,6 @@ class AccountSearchDialog extends StatefulWidget {
 class _AccountSearchDialogState extends State<AccountSearchDialog> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

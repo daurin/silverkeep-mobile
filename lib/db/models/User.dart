@@ -1,5 +1,4 @@
 import '../DB.dart';
-import 'Model.dart';
 
 class User {
   int id;

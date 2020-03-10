@@ -1,7 +1,6 @@
-import 'package:silverkeep/db/models/Model.dart';
 import '../DB.dart';
 
-class Account implements Model {
+class Account {
 
   int id;
   int idUser;

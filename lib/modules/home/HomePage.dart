@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
         selectedFontSize: 14,
         unselectedFontSize: 14,
         //showUnselectedLabels: false,
+        selectedItemColor: Theme.of(context).accentColor,
         onTap: (index){
           setState(() {
             _bottonNavigationIndex=index;

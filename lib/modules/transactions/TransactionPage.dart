@@ -8,6 +8,7 @@ import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/accounts/AccountSearchDialog.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 import 'package:silverkeep/modules/transactions/CustomNotificationPage.dart';
+import 'package:silverkeep/modules/transactions/TransactionLabels.dart';
 
 class TransactionPage extends StatefulWidget {
 
@@ -74,7 +75,7 @@ class _TransactionPageState extends State<TransactionPage> {
             children: <Widget>[
               FlatButton(
                 child: Text('Guardar'),
-                textColor: Theme.of(context).primaryTextTheme.title.color,
+                textTheme: ButtonTextTheme.accent,
                 onPressed: _save
               )
             ],
@@ -184,14 +185,14 @@ class _TransactionPageState extends State<TransactionPage> {
           )
         ],
       ),
-      bottomNavigationBar: Container(
-        height: kBottomNavigationBarHeight,
-        child: RaisedButton(
-          child: Text('Guardar',style: TextStyle(fontSize: 16),),
-          textColor: Theme.of(context).primaryTextTheme.title.color,
-          onPressed: _save
-        ),
-      )
+      // bottomNavigationBar: Container(
+      //   height: kBottomNavigationBarHeight,
+      //   child: RaisedButton(
+      //     child: Text('Guardar',style: TextStyle(fontSize: 16),),
+      //     textColor: Theme.of(context).primaryTextTheme.title.color,
+      //     onPressed: _save
+      //   ),
+      // )
     );
   }
 
@@ -370,96 +371,98 @@ class _TransactionPageState extends State<TransactionPage> {
           return AlertDialog(
             contentPadding: EdgeInsets.symmetric(vertical: 20,horizontal: 0),
             title: Text('Notificación'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: TextField(
-                    controller: textController,
-                    focusNode: focusNode,
-                    keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
-                    enabled: textEnabled,
-                    decoration: InputDecoration.collapsed(
-                      hintText: '',
-                      border: UnderlineInputBorder()
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: TextField(
+                      controller: textController,
+                      focusNode: focusNode,
+                      keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
+                      enabled: textEnabled,
+                      decoration: InputDecoration.collapsed(
+                        hintText: '',
+                        border: UnderlineInputBorder()
+                      ),
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter((){
+                          switch (notifyTimeType) {
+                            case NotifyTimeType.Minutes:
+                            case NotifyTimeType.Hours:
+                              return 3;
+                            case NotifyTimeType.Days:return 2;
+                            case NotifyTimeType.Weeks:default:return 1;
+                          }
+                        }()),
+                        WhitelistingTextInputFormatter.digitsOnly,
+                        TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
+                          if(newValue.text.length==0)return newValue;
+                          if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
+                          
+                          int newNum=int.parse(newValue.text);
+                          switch (notifyTimeType) {
+                            case NotifyTimeType.Minutes: return newNum>600 ? newValue.copyWith(text: '600'):newValue;
+                            case NotifyTimeType.Hours: return newNum>120 ? newValue.copyWith(text: '120'):newValue;
+                            case NotifyTimeType.Days: return newNum>28 ? newValue.copyWith(text: '28'):newValue;
+                            case NotifyTimeType.Weeks: return newNum>4 ? newValue.copyWith(text: '4'):newValue;
+                            default:return newValue;
+                          }
+                        })
+                      ],
                     ),
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter((){
-                        switch (notifyTimeType) {
-                          case NotifyTimeType.Minutes:
-                          case NotifyTimeType.Hours:
-                            return 3;
-                          case NotifyTimeType.Days:return 2;
-                          case NotifyTimeType.Weeks:default:return 1;
-                        }
-                      }()),
-                      WhitelistingTextInputFormatter.digitsOnly,
-                      TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
-                        if(newValue.text.length==0)return newValue;
-                        if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
-                        
-                        int newNum=int.parse(newValue.text);
-                        switch (notifyTimeType) {
-                          case NotifyTimeType.Minutes: return newNum>600 ? newValue.copyWith(text: '600'):newValue;
-                          case NotifyTimeType.Hours: return newNum>120 ? newValue.copyWith(text: '120'):newValue;
-                          case NotifyTimeType.Days: return newNum>28 ? newValue.copyWith(text: '28'):newValue;
-                          case NotifyTimeType.Weeks: return newNum>4 ? newValue.copyWith(text: '4'):newValue;
-                          default:return newValue;
-                        }
-                      })
-                    ],
                   ),
-                ),
-                SizedBox(height: 13),
-                ...[
-                    {
-                      'value':null,
-                      'label':'Sin notificación',
-                    },
-                    {
-                      'value':NotifyTimeType.Minutes,
-                      'label':'Minutos antes',
-                    },
-                    {
-                      'value':NotifyTimeType.Hours,
-                      'label':'Horas antes',
-                    },
-                    {
-                      'value':NotifyTimeType.Days,
-                      'label':'Dias antes',
-                    },
-                    {
-                      'value':NotifyTimeType.Weeks,
-                      'label':'Semanas antes',
-                    },
-                ].map((v){
-                  return RadioListTile<NotifyTimeType>(
-                    value: v['value'],
-                    groupValue: notifyTimeType,
-                    onChanged: (NotifyTimeType value){
-                      setStateDialog(() {
-                        notifyTimeType=value;
-                        textEnabled=value!=null;
-                      });
+                  SizedBox(height: 13),
+                  ...[
+                      {
+                        'value':null,
+                        'label':'Sin notificación',
+                      },
+                      {
+                        'value':NotifyTimeType.Minutes,
+                        'label':'Minutos antes',
+                      },
+                      {
+                        'value':NotifyTimeType.Hours,
+                        'label':'Horas antes',
+                      },
+                      {
+                        'value':NotifyTimeType.Days,
+                        'label':'Dias antes',
+                      },
+                      {
+                        'value':NotifyTimeType.Weeks,
+                        'label':'Semanas antes',
+                      },
+                  ].map((v){
+                    return RadioListTile<NotifyTimeType>(
+                      value: v['value'],
+                      groupValue: notifyTimeType,
+                      onChanged: (NotifyTimeType value){
+                        setStateDialog(() {
+                          notifyTimeType=value;
+                          textEnabled=value!=null;
+                        });
 
-                      int number=int.parse(textController.text.length==0?'1':textController.text);
-                      switch (notifyTimeType) {
-                        case NotifyTimeType.Hours:
-                          if(number>120) textController.text='120';
-                          break;
-                        case NotifyTimeType.Days:
-                          if(number>28)textController.text='28';
-                          break;
-                        case NotifyTimeType.Weeks:
-                          if(number>4)textController.text='4';
-                          break;
-                        case NotifyTimeType.Minutes: default: break;
-                      }
-                    },
-                    title: Text(v['label']),
-                  );
-                }).toList()
-              ]
+                        int number=int.parse(textController.text.length==0?'1':textController.text);
+                        switch (notifyTimeType) {
+                          case NotifyTimeType.Hours:
+                            if(number>120) textController.text='120';
+                            break;
+                          case NotifyTimeType.Days:
+                            if(number>28)textController.text='28';
+                            break;
+                          case NotifyTimeType.Weeks:
+                            if(number>4)textController.text='4';
+                            break;
+                          case NotifyTimeType.Minutes: default: break;
+                        }
+                      },
+                      title: Text(v['label']),
+                    );
+                  }).toList()
+                ]
+              ),
             ),
             actions: <Widget>[
               ButtonBar(
@@ -484,15 +487,15 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   void _onTabLabels(){
-
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionLabels()));
   }
 
   _save(){
     return;
-    Transaction.add(_transaction)
-      .then((v){
-        Navigator.pop(context);
-      });
+    // Transaction.add(_transaction)
+    //   .then((v){
+    //     Navigator.pop(context);
+    //   });
 
     // switch (_transaction.transactionType) {
     //   case TransactionType.Income:

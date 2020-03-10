@@ -1,25 +1,34 @@
+import 'package:meta/meta.dart';
 import '../DB.dart';
 
 class Label {
 
   int id;
   String name;
-  String type;
+  LabelType type;
   String color;
   int orderCustom;
 
   static String tableName = 'LABEL';
 
-  Label({this.id, this.name, this.type,this.color,this.orderCustom});
+  Label({this.id, this.name, this.type,this.color='predeterminated',this.orderCustom});
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap({ignoreId=false}) {
     Map<String, dynamic> map = {
       'id': id,
       'name': name,
-      'type': type,
+      'type': (){
+        switch (type) {
+          case LabelType.Expense:return 'E';
+          case LabelType.Income:return 'I';
+          default: return null;
+        }
+      }(),
       'color':color,
       'order_custom':orderCustom
     };
+    if(ignoreId)map.remove('id');
+
     return map;
   }
 
@@ -27,7 +36,13 @@ class Label {
     return Label(
         id: map['id'],
         name: map['name'],
-        type: map['type'],
+        type: (){
+          switch (map['type']) {
+            case 'E':return LabelType.Expense;
+            case 'I':return LabelType.Income;
+            default: return null;
+          }
+        }(),
         color: map['color']);
   }
 
@@ -35,24 +50,14 @@ class Label {
     final db=DB.db;
 
     return db.insert(tableName,
-    {
-      'name':label.name,
-      'type':label.type,
-      'color':label.color,
-      'order_custom':label.orderCustom
-    });
+    label.toMap(ignoreId: true));
   }
 
   static Future<int> editById(Label label,int id){
     final db=DB.db;
 
     return db.update(Label.tableName,
-      {
-        'name':label.name,
-        'type':label.type,
-        'color':label.color,
-        'order_custom':label.orderCustom
-      },
+      label.toMap(),
       where: 'id = ?',whereArgs: [id]
     );
   }
@@ -107,4 +112,28 @@ class Label {
     final  db=DB.db;
     return db.delete(Label.tableName,where: 'id = ?',whereArgs: [id]);
   }
+
+  static Future<bool> existByField({@required String field,@required String value,LabelType type})async{
+    final db=DB.db;
+
+    String query='SELECT 1 FROM ${Label.tableName} WHERE $field=?';
+
+    if(type==LabelType.Income)query+=" AND type='I'";
+    if(type==LabelType.Expense)query+=" AND type='E'";
+
+    query+=' COLLATE NOCASE';
+
+    query='SELECT EXISTS ($query)as exist;';
+    print(query);
+    return await db.rawQuery(query,[value])
+      .then((res){
+        print(res.first['exist']);
+        return Future.value(res.first['exist'].toString()=='1');
+      });
+  }
+}
+
+enum LabelType{
+  Income,
+  Expense
 }

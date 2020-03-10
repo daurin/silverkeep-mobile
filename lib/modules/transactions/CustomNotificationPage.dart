@@ -50,7 +50,6 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
 
     _focusNode.dispose();
@@ -228,24 +227,6 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
   //   );
   //}
 
-  Widget _buildContainer({Widget child,double width}){
-    return Container(
-      height: 48,
-      width: width,
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.grey.shade200,
-      ),
-      child: LimitedBox(
-        maxWidth: 100,
-        child: Center(
-          child: child
-        )
-      ),
-    );
-  }
-
   Widget _buildCircleCheck({String text='',bool selected=false,Function onTab})
   {
     return GestureDetector(
@@ -254,7 +235,7 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
         height: 35,
         width: 35,
         child: CircleAvatar(
-          backgroundColor: selected?Theme.of(context).primaryColor:Colors.grey.shade300,
+          backgroundColor: selected?Theme.of(context).accentColor:Colors.grey.shade300,
           foregroundColor: selected?Colors.white:Colors.black,
           child: Text(text),
         ),
@@ -270,6 +251,10 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
   }
 
   void _onTabDateFinish (){
+    setState(() {
+      _transaction.dateFinish=_dateFinish;
+    });
+
     showDatePicker(
       context: context,
       initialDate: _transaction.dateFinish??DateTime.now(),

@@ -11,7 +11,7 @@ class MoreFragment extends StatelessWidget {
     return ListView(
       children: <Widget>[
         ListTile(
-          title: Text('Administrar', style: TextStyle(color: Colors.grey)),
+          title: Text('Administrar', style: TextStyle(color:Theme.of(context).hintColor)),
         ),
         ListTile(
           leading: Icon(MdiIcons.walletOutline),
@@ -31,7 +31,7 @@ class MoreFragment extends StatelessWidget {
           height: 1,
         ),
         ListTile(
-          title: Text('Informes', style: TextStyle(color: Colors.grey)),
+          title: Text('Informes', style: TextStyle(color:Theme.of(context).hintColor)),
         ),
         ListTile(
           leading: Icon(MdiIcons.chartDonut),
@@ -47,7 +47,7 @@ class MoreFragment extends StatelessWidget {
           height: 1,
         ),
         ListTile(
-          title: Text('Aplicación', style: TextStyle(color: Colors.grey)),
+          title: Text('Aplicación', style: TextStyle(color:Theme.of(context).hintColor)),
         ),
         ListTile(
           leading: Icon(MdiIcons.settingsOutline),

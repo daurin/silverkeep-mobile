@@ -62,9 +62,13 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
         leading: IconButton(icon: Icon(Icons.close), onPressed: ()=>Navigator.pop(context)),
         title:Text('Repeticiones personalizada'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: _onSubmit,
+          ButtonBar(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.check),
+                onPressed: _onSubmit,
+              )
+            ],
           )
         ],
       ),

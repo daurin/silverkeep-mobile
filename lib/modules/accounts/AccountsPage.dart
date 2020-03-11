@@ -31,16 +31,20 @@ class _AccountsPageState extends State<AccountsPage> {
       appBar: AppBar(
         title: Text('Cuentas'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(_prefService.showAccountAmount
-                ? MdiIcons.eyeOutline
-                : MdiIcons.eyeOffOutline),
-            onPressed: () {
-              setState(() {
-                _prefService.showAccountAmount =
-                    !_prefService.showAccountAmount;
-              });
-            },
+          ButtonBar(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(_prefService.showAccountAmount
+                    ? MdiIcons.eyeOutline
+                    : MdiIcons.eyeOffOutline),
+                onPressed: () {
+                  setState(() {
+                    _prefService.showAccountAmount =
+                        !_prefService.showAccountAmount;
+                  });
+                },
+              )
+            ],
           )
         ],
       ),

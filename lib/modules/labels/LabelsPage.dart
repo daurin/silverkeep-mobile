@@ -326,7 +326,7 @@ class _LabelsPageState extends State<LabelsPage> {
               ),
               IconButton(
                 icon:focused?
-                  Icon(Icons.check,color: Theme.of(context).accentColor):
+                  Icon(Icons.check,color: Theme.of(context).primaryColor):
                   Icon(Icons.edit,),
                 onPressed: (){
                   if(focused){

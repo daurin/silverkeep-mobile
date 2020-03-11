@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
 import 'package:silverkeep/db/models/Account.dart';
+import 'package:silverkeep/db/models/Label.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/accounts/AccountSearchDialog.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 import 'package:silverkeep/modules/transactions/CustomNotificationPage.dart';
-import 'package:silverkeep/modules/transactions/TransactionLabels.dart';
+
+import 'TransactionLabelsPage.dart';
 
 class TransactionPage extends StatefulWidget {
 
@@ -22,7 +24,9 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
+
   Transaction _transaction;
+  List<Label> _labels;
   Account _account;
   Account _accountTransfer;
 
@@ -40,6 +44,8 @@ class _TransactionPageState extends State<TransactionPage> {
       notifyTimes: 10
     );
 
+    _labels=[];
+
     _account=Account(
       color: 'predeterminated'
     );
@@ -52,6 +58,7 @@ class _TransactionPageState extends State<TransactionPage> {
           print(account.color);
           setState(() {
             _account=account;
+            _transaction.idAccount=account.id;
           });
         }
       });
@@ -89,6 +96,9 @@ class _TransactionPageState extends State<TransactionPage> {
               style: Theme.of(context).textTheme.headline,
               keyboardType: TextInputType.numberWithOptions(signed: true,decimal: true),
               autofocus: true,
+              onChanged: (String text){
+                setState(()=>_transaction.amount=double.parse(text.replaceAll(',', '')??'0'));
+              },
               decoration: InputDecoration.collapsed(
                 hintText: 'Monto',
                 border: InputBorder.none,
@@ -173,6 +183,9 @@ class _TransactionPageState extends State<TransactionPage> {
             leading: Icon(Icons.subject),
             title: TextField(
               maxLines: null,
+              onChanged: (String text){
+                setState(()=>_transaction.notes=text.trim());
+              },
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration.collapsed(
@@ -210,6 +223,7 @@ class _TransactionPageState extends State<TransactionPage> {
             _accountTransfer=null;
           }
           _account=account;
+          _transaction.idAccount=account.id;
         });
       }
     });
@@ -229,6 +243,7 @@ class _TransactionPageState extends State<TransactionPage> {
             _account=null;
           }
           _accountTransfer=account;
+          _transaction.idAccountTransfer=account.id;
         });
       }
     });
@@ -487,15 +502,25 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   void _onTabLabels(){
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>TransactionLabels()));
+    Navigator.push<List<Label>>(context, MaterialPageRoute(builder: (context)=>TransactionLabelsPage(
+      transactionId: _transaction.id,
+      transactionType: _transaction.id ==null?_transaction.transactionType:null,
+    )))
+      .then((List<Label> labels){
+        setState(() {
+          _labels=labels;
+        });
+      });
   }
 
   _save(){
-    return;
-    // Transaction.add(_transaction)
-    //   .then((v){
-    //     Navigator.pop(context);
-    //   });
+    Transaction.add(_transaction,labels: _labels.map((v)=>v.id).toList())
+      .then((v){
+        Navigator.pop(context);
+      })
+      .catchError((error){
+        print(error);
+      });
 
     // switch (_transaction.transactionType) {
     //   case TransactionType.Income:

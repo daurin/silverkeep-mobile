@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS "TRANSACTION" (
 	"id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	"id_user"	INTEGER NOT NULL,
+	"id_user"	INTEGER,
 	"id_account"	INTEGER NOT NULL,
-	"id_account_transfer"	BLOB,
+	"id_account_transfer"	INTEGER,
 	"amount"	NUMERIC NOT NULL,
 	"notes"	TEXT,
 	"date"	TEXT NOT NULL,
@@ -55,5 +55,3 @@ CREATE TABLE IF NOT EXISTS "TRANSACTION_LABEL" (
 	FOREIGN KEY("id_transaction") REFERENCES "TRANSACTION_LABEL"("id"),
 	FOREIGN KEY("id_label") REFERENCES "LABEL"("id")
 );
-INSERT INTO "USER" ("id","first_name","last_name","email","password") VALUES (1,NULL,NULL,NULL,NULL),
- (2,'Invitado',NULL,NULL,NULL);

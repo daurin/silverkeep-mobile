@@ -1,6 +1,8 @@
 import '../DB.dart';
 import 'package:intl/intl.dart';
 
+import 'TransactionLabel.dart';
+
 class Transaction {
 
   int id;
@@ -31,7 +33,8 @@ class Transaction {
 
   Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.notes,this.transactionType,
   this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
-  this.dateFinish,this.monday,this.tuesday,this.wednesday,this.thursday,this.friday,this.saturday,this.sunday,
+  this.dateFinish,this.monday=false,this.tuesday=false,this.wednesday=false,this.thursday=false,
+  this.friday=false,this.saturday=false,this.sunday=false,
   this.notifyTimeType,this.notifyTimes});
 
   Map<String, dynamic> toMap({ignoreId=false}) {
@@ -42,7 +45,7 @@ class Transaction {
       'id_account_transfer': idAccountTransfer,
       'amount':amount,
       'notes':notes,
-      'transaction_mode':(){
+      'transaction_type':(){
         switch (transactionType) {
           case TransactionType.Income: return 'I';
           case TransactionType.Expense:return 'E';
@@ -72,7 +75,7 @@ class Transaction {
       }(),
       'repeat_count':repeatCount,
       'date':DateFormat('yyyy-MM-dd').format(date),
-      'date_finish':DateFormat('yyyy-MM-dd').format(dateFinish),
+      'date_finish':dateFinish==null?null:DateFormat('yyyy-MM-dd').format(dateFinish),
       'monday':this.monday?1:0,
       'tuesday':this.tuesday?1:0,
       'wednesday':this.wednesday?1:0,
@@ -153,9 +156,18 @@ class Transaction {
     );
   }
 
-  static Future<int> add(Transaction transaction){
+  static Future<int> add(Transaction transaction,{List<int> labels})async{
     final db=DB.db;
-    return db.insert(tableName,transaction.toMap(ignoreId: true));
+    return await db.insert(tableName,transaction.toMap(ignoreId: true))
+      .then((int id)async{
+        for (int item in labels) {
+          await TransactionLabel.add(TransactionLabel(
+            idTransaction: id,
+            idLabel: item
+          ));
+        }
+        return await Future.value(id);
+      });
   }
 
   static Future<int> editById(Transaction transaction,int id){
@@ -190,7 +202,7 @@ class Transaction {
       });
   }
 
-  static Future<Transaction> getById(int id)async{
+  static Future<Transaction> findById(int id)async{
     final  db=DB.db;
 
     return db.query(Transaction.tableName,where: 'id = ?',whereArgs: [id])

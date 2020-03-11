@@ -62,23 +62,28 @@ class _AccountPageState extends State<AccountPage> {
 
     return Theme(
       data: ThemeData(
-        primaryColor: ColorsApp(context).getColorDataByKey(_account.color)['color']??Theme.of(context).primaryColor,
+        primaryColor: ColorsApp(context).getColorDataByKey(_account.color)['color']??
+          Theme.of(context).appBarTheme.color,
         
       ),
       child: Scaffold(
         appBar: AppBar(
           title:Text(_pageMode==PageMode.add?'Nueva cuenta':_account.name),
           actions: <Widget>[
-            Visibility(
-              visible: _pageMode==PageMode.edit,
-              child: IconButton(
-                icon: Icon(MdiIcons.deleteOutline),
-                onPressed: _delete
-              ),
-            ),
-            IconButton(
-              icon: Icon(MdiIcons.check),
-              onPressed: _save
+            ButtonBar(
+              children: <Widget>[
+                Visibility(
+                  visible: _pageMode==PageMode.edit,
+                  child: IconButton(
+                    icon: Icon(MdiIcons.deleteOutline),
+                    onPressed: _delete
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(MdiIcons.check),
+                  onPressed: _save
+                )
+              ],
             )
           ],
         ),

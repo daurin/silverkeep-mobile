@@ -62,10 +62,22 @@ class Label {
     );
   }
 
-  static Future<List<Label>> getAll()async{
+  static Future<List<Label>> select({LabelType type,int transactionId})async{
     final  db=DB.db;
 
-    return db.query(Label.tableName)
+    List<String> where=[];
+    List<String> whereArgs=[];
+
+    if(type==LabelType.Income){
+      where.add('type= ?');
+      whereArgs.add('I');
+    }
+    if(type==LabelType.Expense){
+      where.add('type= ?');
+      whereArgs.add('I');
+    }
+
+    return db.query(Label.tableName,where: where.join(''),whereArgs: whereArgs)
       .then((res){
         if(res.length>0){
           return res.map((v)=>Label.fromMap(v)).toList();
@@ -98,7 +110,7 @@ class Label {
       });
   }
 
-  static Future<Label> getById(int id)async{
+  static Future<Label> findById(int id)async{
     final  db=DB.db;
 
     return db.query(Label.tableName,where: 'id = ?',whereArgs: [id])
@@ -124,7 +136,6 @@ class Label {
     query+=' COLLATE NOCASE';
 
     query='SELECT EXISTS ($query)as exist;';
-    print(query);
     return await db.rawQuery(query,[value])
       .then((res){
         print(res.first['exist']);

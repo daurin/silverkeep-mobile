@@ -1,6 +1,7 @@
 import '../DB.dart';
 import 'package:intl/intl.dart';
 
+import 'Label.dart';
 import 'TransactionLabel.dart';
 
 class Transaction {
@@ -10,6 +11,7 @@ class Transaction {
   int idAccount;
   int idAccountTransfer;
   double amount;
+  String description;
   String notes;
   TransactionType transactionType;
   TransactionRepeatMode repeatMode;
@@ -27,15 +29,17 @@ class Transaction {
   NotifyTimeType notifyTimeType;
   int notifyTimes;
 
+  List<Label> labels;
+
 
 
   static String tableName = 'TRANSACTION';
 
-  Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.notes,this.transactionType,
+  Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.description,this.notes,this.transactionType,
   this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
   this.dateFinish,this.monday=false,this.tuesday=false,this.wednesday=false,this.thursday=false,
   this.friday=false,this.saturday=false,this.sunday=false,
-  this.notifyTimeType,this.notifyTimes});
+  this.notifyTimeType,this.notifyTimes,this.labels});
 
   Map<String, dynamic> toMap({ignoreId=false}) {
     Map<String, dynamic> map = {
@@ -44,6 +48,7 @@ class Transaction {
       'id_account': idAccount,
       'id_account_transfer': idAccountTransfer,
       'amount':amount,
+      'description':description,
       'notes':notes,
       'transaction_type':(){
         switch (transactionType) {
@@ -105,12 +110,13 @@ class Transaction {
       idUser: map['id_user'],
       idAccount: map['id_account'],
       idAccountTransfer: map['id_account_transfer'],
-      amount: map['amount'],
+      amount: double.parse(map['amount'].toString()),
+      description: map['description'],
       notes: map['notes'],
       transactionType:(){
         switch (map['transaction_type']) {
           case 'I': return TransactionType.Income;
-          case 'e': return TransactionType.Expense;
+          case 'E': return TransactionType.Expense;
           case 'T': return TransactionType.Transfer;
           default: return null;
         }
@@ -136,7 +142,7 @@ class Transaction {
         }
       }(),
       date: DateFormat('yyyy-MM-dd').parse(map['date']),
-      dateFinish: DateFormat('yyyy-MM-dd').parse(map['date_finish']),
+      dateFinish:map['date_finish']==null? null : DateFormat('yyyy-MM-dd').parse(map['date_finish']),
       monday: map['monday']=='1',
       tuesday: map['tuesday']=='1',
       wednesday: map['wednesday']=='1',
@@ -156,14 +162,14 @@ class Transaction {
     );
   }
 
-  static Future<int> add(Transaction transaction,{List<int> labels})async{
+  static Future<int> add(Transaction transaction)async{
     final db=DB.db;
     return await db.insert(tableName,transaction.toMap(ignoreId: true))
       .then((int id)async{
-        for (int item in labels) {
+        for (Label item in transaction.labels) {
           await TransactionLabel.add(TransactionLabel(
             idTransaction: id,
-            idLabel: item
+            idLabel: item.id
           ));
         }
         return await Future.value(id);
@@ -190,7 +196,7 @@ class Transaction {
       });
   }
 
-  static Future<List<Transaction>> getPaginated({String orderBy='id asc'})async{
+  static Future<List<Transaction>> select({String orderBy='id asc'})async{
     final  db=DB.db;
 
     return db.query(Transaction.tableName,orderBy: orderBy)

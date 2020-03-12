@@ -62,7 +62,7 @@ class Label {
     );
   }
 
-  static Future<List<Label>> select({LabelType type,int transactionId})async{
+  static Future<List<Label>> select({LabelType type})async{
     final  db=DB.db;
 
     List<String> where=[];
@@ -74,12 +74,13 @@ class Label {
     }
     if(type==LabelType.Expense){
       where.add('type= ?');
-      whereArgs.add('I');
+      whereArgs.add('E');
     }
 
-    return db.query(Label.tableName,where: where.join(''),whereArgs: whereArgs)
+    return db.query(Label.tableName,where: where.join(' AND '),whereArgs: whereArgs)
       .then((res){
         if(res.length>0){
+      
           return res.map((v)=>Label.fromMap(v)).toList();
         }
         else return [];

@@ -84,7 +84,7 @@ class Account {
       });
   }
 
-  static Future<Account> getById(int id)async{
+  static Future<Account> findById(int id)async{
     final  db=DB.db;
 
     return db.query(Account.tableName,where: 'id = ?',whereArgs: [id])

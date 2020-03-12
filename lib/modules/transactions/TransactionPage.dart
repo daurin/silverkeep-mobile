@@ -26,9 +26,10 @@ class TransactionPage extends StatefulWidget {
 class _TransactionPageState extends State<TransactionPage> {
 
   Transaction _transaction;
-  List<Label> _labels;
   Account _account;
   Account _accountTransfer;
+
+  TextEditingController _amountController,_descriptionController,_notesController;
 
   @override
   void initState() {
@@ -41,10 +42,14 @@ class _TransactionPageState extends State<TransactionPage> {
       repeatCount: 1,
       repeatEvery: TransactionRepeatEvery.Days,
       notifyTimeType: NotifyTimeType.Minutes,
-      notifyTimes: 10
+      notifyTimes: 10,
+      labels: []
     );
 
-    _labels=[];
+    _amountController=TextEditingController();
+    _descriptionController=TextEditingController();
+    _notesController=TextEditingController();
+
 
     _account=Account(
       color: 'predeterminated'
@@ -93,12 +98,10 @@ class _TransactionPageState extends State<TransactionPage> {
         children: <Widget>[
           ListTile(
             title:TextField(
+              controller: _amountController,
               style: Theme.of(context).textTheme.headline,
               keyboardType: TextInputType.numberWithOptions(signed: true,decimal: true),
-              autofocus: true,
-              onChanged: (String text){
-                setState(()=>_transaction.amount=double.parse(text.replaceAll(',', '')??'0'));
-              },
+              textInputAction: TextInputAction.done,
               decoration: InputDecoration.collapsed(
                 hintText: 'Monto',
                 border: InputBorder.none,
@@ -125,6 +128,18 @@ class _TransactionPageState extends State<TransactionPage> {
               title: Text(_accountTransfer?.name??''),
               trailing: Icon(MdiIcons.bankTransferIn,color: Colors.green),
               onTap: _onTabAccountTransfer,
+            ),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(MdiIcons.textShort),
+            title: TextField(
+              controller: _descriptionController,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration.collapsed(
+                hintText: 'Descripcion'
+              ),
             ),
           ),
           Divider(),
@@ -159,22 +174,20 @@ class _TransactionPageState extends State<TransactionPage> {
             visible: _transaction.transactionType!=TransactionType.Transfer,
             child: ListTile(
               leading: Icon(Icons.label_outline),
-              title: false?Wrap(
+              title: _transaction.labels.length>0?Wrap(
                 spacing: 10,
-                children: <Widget>[
-                  Chip(
-                    label: Text('Entretenimiento'),
-                    backgroundColor: Colors.transparent,
-                    shape: StadiumBorder(side: BorderSide(color: Colors.grey)),
-                  ),
-                  Chip(
-                    label: Text('Sueldo'),
-                    backgroundColor: Colors.transparent,
-                    shape: StadiumBorder(side: BorderSide(color: Colors.grey)),
-                  ),
-                ],
-              ):Text('Etiquetas'),
-              //isThreeLine: true,
+                runSpacing: -5,
+                runAlignment: WrapAlignment.start,
+                alignment: WrapAlignment.start,
+                children: _transaction.labels.map((Label label){
+                  return Chip(
+                    label: Text(label.name,
+                      style: TextStyle(color: ColorsApp(context).getColorDataByKey(label.color)['color']),
+                    ),
+                    //backgroundColor: ColorsApp(context).getColorDataByKey(label.color)['color'],
+                  );
+                }).toList(),
+              ):Text('Etiquetas',style: TextStyle(color: Theme.of(context).hintColor),),
               onTap: _onTabLabels,
             ),
           ),
@@ -182,10 +195,8 @@ class _TransactionPageState extends State<TransactionPage> {
           ListTile(
             leading: Icon(Icons.subject),
             title: TextField(
+              controller: _notesController,
               maxLines: null,
-              onChanged: (String text){
-                setState(()=>_transaction.notes=text.trim());
-              },
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.done,
               decoration: InputDecoration.collapsed(
@@ -503,18 +514,23 @@ class _TransactionPageState extends State<TransactionPage> {
 
   void _onTabLabels(){
     Navigator.push<List<Label>>(context, MaterialPageRoute(builder: (context)=>TransactionLabelsPage(
-      transactionId: _transaction.id,
+      //transactionId: _transaction.id,
       transactionType: _transaction.id ==null?_transaction.transactionType:null,
+      initialLabelsSelected: _transaction.labels,
     )))
       .then((List<Label> labels){
         setState(() {
-          _labels=labels;
+          _transaction.labels=labels;
         });
       });
   }
 
   _save(){
-    Transaction.add(_transaction,labels: _labels.map((v)=>v.id).toList())
+    _transaction.amount=double.parse(_amountController.text.replaceAll(',', '')??'0');
+    _transaction.description=_descriptionController.text;
+    _transaction.notes=_notesController.text;
+
+    Transaction.add(_transaction)
       .then((v){
         Navigator.pop(context);
       })

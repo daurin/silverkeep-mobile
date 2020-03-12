@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:silverkeep/db/models/Account.dart';
+import 'package:silverkeep/db/models/Transaction.dart';
 
 class TransactionItem extends StatelessWidget {
   final double amount; 
+  final Transaction transaction;
 
-  const TransactionItem({Key key,this.amount}) : super(key: key);
+  const TransactionItem({Key key,this.transaction,this.amount}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text('Sueldo del trabajo',style: Theme.of(context).textTheme.subhead,),
+      title: Text(transaction.description??'',style: Theme.of(context).textTheme.subhead,),
       subtitle: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,19 +65,36 @@ class TransactionItem extends StatelessWidget {
                 // WidgetSpan(
                 //   child: Icon(Icons.trending_up, size: 17),
                 // ),
-                TextSpan(
-                  text: ' + \$ 30,000',
-                  style: Theme.of(context).textTheme.title.copyWith(color:Colors.green.shade400)
-                ),
+                (){
+                  switch (transaction.transactionType) {
+                    case TransactionType.Income:
+                      return TextSpan(
+                        text: '+ \$${NumberFormat().format(transaction.amount)}',
+                        style: Theme.of(context).textTheme.title.copyWith(color:Colors.green.shade400)
+                      );
+                    case TransactionType.Expense:
+                      return TextSpan(
+                        text: '- \$${NumberFormat().format(transaction.amount)}',
+                        style: Theme.of(context).textTheme.title.copyWith(color:Colors.red.shade400)
+                      );
+                    case TransactionType.Transfer:
+                      return TextSpan(
+                        text: '\$${NumberFormat().format(transaction.amount)}',
+                        style: Theme.of(context).textTheme.title
+                      );
+                    default: return TextSpan();
+                  }
+                }()
               ]
             )
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-               _buildTransactionTag(context,title: 'Sueldo'),
-               _buildTransactionTag(context,title: 'Clientes'),
-            ],
+            children: (transaction.labels??[]).map((item){
+              return _buildTransactionTag(context,
+                title: item.name  
+              );
+            }).toList(),
           )
         ],
       ),
@@ -84,12 +105,13 @@ class TransactionItem extends StatelessWidget {
     );
   }
 
-  _buildTransactionTag(BuildContext context,{String title}){
+  Widget _buildTransactionTag(BuildContext context,{String title,Color color}){
     return Container(
       margin: EdgeInsets.only(left: 5),
       child: Text(title,style: Theme.of(context).textTheme.caption.copyWith(fontSize: 14),),
       padding: EdgeInsets.fromLTRB(7, 3, 7, 2),
       decoration: BoxDecoration(
+        color: color,
         border: Border.all(width: 1,color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.all(Radius.circular(7))
       ),

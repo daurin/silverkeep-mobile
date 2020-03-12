@@ -45,7 +45,7 @@ class _AccountPageState extends State<AccountPage> {
     }
     else{
       _loading=true;
-      Account.getById(widget.idAccount)
+      Account.findById(widget.idAccount)
         .then((account){
           setState(()=>_account=account);
           _nameController.text=_account.name;

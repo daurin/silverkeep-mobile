@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS "TRANSACTION" (
 	"id_account"	INTEGER NOT NULL,
 	"id_account_transfer"	INTEGER,
 	"amount"	NUMERIC NOT NULL,
+	"description"	TEXT,
 	"notes"	TEXT,
 	"date"	TEXT NOT NULL,
 	"date_finish"	TEXT,

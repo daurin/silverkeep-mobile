@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:silverkeep/db/models/Label.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
+import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 
 class TransactionLabelsPage extends StatefulWidget {
-  final int transactionId;
   final TransactionType transactionType;
+  final List<Label> initialLabelsSelected;
 
-  TransactionLabelsPage({Key key,this.transactionId,this.transactionType}) : super(key: key);
+  TransactionLabelsPage({Key key,this.transactionType,this.initialLabelsSelected}) : super(key: key);
 
   @override
   _TransactionLabelsPageState createState() => _TransactionLabelsPageState();
@@ -26,7 +27,7 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
   void initState() {
     super.initState();
     _labels=[];
-    _labelsSelected=[];
+    _labelsSelected=widget.initialLabelsSelected??[];
     _loadingLabels=true;
     _labelsFiltered=[];
 
@@ -34,16 +35,16 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
 
     _transactionType=widget.transactionType;
 
-    if(widget.transactionId ==null && widget.transactionType==null)throw ArgumentError();
-    if(widget.transactionId !=null && widget.transactionType!=null)throw ArgumentError();
+    // if(widget.transactionId ==null && widget.transactionType==null)throw ArgumentError();
+    // if(widget.transactionId !=null && widget.transactionType!=null)throw ArgumentError();
 
-    if(widget.transactionId!=null){
-      Transaction.findById(widget.transactionId)
-        .then((Transaction transaction)async{
-          _transactionType=transaction.transactionType;
-          _getLabels();
-        });
-    }
+    // if(widget.transactionId!=null){
+    //   Transaction.findById(widget.transactionId)
+    //     .then((Transaction transaction)async{
+    //       _transactionType=transaction.transactionType;
+    //       _getLabels();
+    //     });
+    // }
 
     if(widget.transactionType!=null){
       _getLabels();
@@ -96,7 +97,12 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
                         leading: Icon(Icons.add,color: Theme.of(context).accentColor),
                         title: Text('"${_textController.text.trim()}"'),
                         onTap: (){
-                          Label.add(Label(name: _textController.text.trim(),type: LabelType.Income))
+                          Label.add(Label(name: _textController.text.trim(),type: (){
+                            switch (_transactionType) {
+                              case TransactionType.Expense: return LabelType.Expense;
+                              case TransactionType.Income:default: return LabelType.Income;
+                            }
+                          }()))
                             .then((int id)async{
                               _textController.clear();
                               _labelsSelected.add(await Label.findById(id));
@@ -110,8 +116,8 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
                 ...labels.map((Label item){
                   return CheckboxListTile(
                     value: (_labelsSelected.firstWhere((v)=>v.id==item.id,orElse: ()=>null))!=null,
+                    secondary: Icon(Icons.label_outline,color: ColorsApp(context).getColorDataByKey(item.color)['color']),
                     title: Text(item.name),
-                    secondary: Icon(Icons.label_outline),
                     onChanged: (bool checked){
                       setState(() {  
                         Label label=_labelsSelected.firstWhere((v)=>v.id==item.id,orElse: ()=>null);
@@ -136,18 +142,21 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
 
     List<Label> labels=await Label.select(type: labelType);
     List<Label> labelsSelected=[];
-    if(widget.transactionId!=null){
-      await Label.select(transactionId: widget.transactionId)
-        .then((List<Label> labels){
-          for (Label item in labels) {
-            if((_labelsSelected.firstWhere((v)=>v.id==item.id,orElse: ()=>null))!=null)labelsSelected.add(item);
-          }
-        });
+    // if(widget.transactionId!=null){
+    //   await Label.select(transactionId: widget.transactionId)
+    //     .then((List<Label> labels){
+    //       for (Label item in labels) {
+    //         if((_labelsSelected.firstWhere((v)=>v.id==item.id,orElse: ()=>null))!=null)labelsSelected.add(item);
+    //       }
+    //     });
       
-    }
+    // }
+
     setState((){
       _labels=labels;
-      if(widget.transactionId!=null)_labelsSelected.addAll(labelsSelected);
+      // if(widget.transactionId!=null){
+      //   _labelsSelected.addAll(labelsSelected);
+      // }
       _loadingLabels=false;
     });
 

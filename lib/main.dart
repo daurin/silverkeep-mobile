@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:silverkeep/db/models/Account.dart';
 import 'package:silverkeep/services/SharedPrefService.dart';
 import 'package:silverkeep/themes.dart';
 import 'package:silverkeep/modules/home/HomePage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'blocs/transaction/TransactionBloc.dart';
 import 'db/DB.dart';
 import 'db/models/User.dart';
 
@@ -32,19 +34,26 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home:HomePage(),
-      theme: buildThemeLight(context),
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<TransactionBloc>(
+          create: (BuildContext context) => TransactionBloc(),
+        )
       ],
-      locale: Locale('es','US'),
-      supportedLocales: [
-        const Locale('es','US')
-        //const Locale('en', 'US'),
-      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        home:HomePage(),
+        theme: buildThemeLight(context),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        locale: Locale('es','US'),
+        supportedLocales: [
+          const Locale('es','US')
+          //const Locale('en', 'US'),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:silverkeep/blocs/transaction/TransactionBloc.dart';
+import 'package:silverkeep/blocs/transaction/TransactionEvents.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/more/MoreFragment.dart';
 import 'package:silverkeep/modules/more/MoreAppBar.dart';
@@ -15,14 +18,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   int _bottonNavigationIndex;
+
 
   @override
   void initState() {
     super.initState();
 
     _bottonNavigationIndex=0;
+    BlocProvider.of<TransactionBloc>(context).add(LoadTransactions());
   }
 
   @override

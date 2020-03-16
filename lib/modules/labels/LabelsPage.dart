@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:silverkeep/blocs/transaction/TransactionBloc.dart';
+import 'package:silverkeep/blocs/transaction/TransactionEvents.dart';
 import 'package:silverkeep/db/models/Label.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsDialog.dart';
@@ -178,6 +181,7 @@ class _LabelsPageState extends State<LabelsPage> {
                 else{
                   item['label'].name=item['controller'].text;
                   Label.editById(item['label'],item['label'].id);
+                  BlocProvider.of<TransactionBloc>(context).add(LoadTransactions());
                 }
               }
             });
@@ -211,6 +215,7 @@ class _LabelsPageState extends State<LabelsPage> {
                 else{
                   item['label'].name=item['controller'].text;
                   Label.editById(item['label'],item['label'].id);
+                  BlocProvider.of<TransactionBloc>(context).add(LoadTransactions());
                 }
               }
             });
@@ -341,6 +346,7 @@ class _LabelsPageState extends State<LabelsPage> {
                       focusNode.unfocus();
                       if(label.type==LabelType.Income)_loadIncomesItems();
                       if(label.type==LabelType.Expense)_loadExpenseItems();
+                      BlocProvider.of<TransactionBloc>(context).add(LoadTransactions());
                     });
                   }
                   else focusNode.requestFocus();

@@ -8,11 +8,14 @@ class TransactionAppBar extends StatelessWidget {
     return AppBar(
       title: Text('Transacciones'),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: (){
-            
-          }
+        ButtonBar(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.filter_list),
+              onPressed: (){
+              }
+            ),
+          ],
         )
       ],
     );

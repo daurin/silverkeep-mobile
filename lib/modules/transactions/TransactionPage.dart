@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:pattern_formatter/numeric_formatter.dart';
+import 'package:silverkeep/blocs/transaction/TransactionBloc.dart';
+import 'package:silverkeep/blocs/transaction/TransactionEvents.dart';
 import 'package:silverkeep/db/models/Account.dart';
 import 'package:silverkeep/db/models/Label.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/accounts/AccountSearchDialog.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 import 'package:silverkeep/modules/transactions/CustomNotificationPage.dart';
+import 'package:silverkeep/utils/IsNumeric.dart';
 
 import 'TransactionLabelsPage.dart';
 
@@ -26,8 +30,8 @@ class TransactionPage extends StatefulWidget {
 class _TransactionPageState extends State<TransactionPage> {
 
   Transaction _transaction;
-  Account _account;
-  Account _accountTransfer;
+  // Account _account;
+  // Account _accountTransfer;
 
   TextEditingController _amountController,_descriptionController,_notesController;
 
@@ -51,19 +55,18 @@ class _TransactionPageState extends State<TransactionPage> {
     _notesController=TextEditingController();
 
 
-    _account=Account(
+    _transaction.account=Account(
       color: 'predeterminated'
     );
 
-    _accountTransfer=null;
+    _transaction.accountTransfer=null;
 
     Account.getFirst()
       .then((Account account){
         if(account!=null){
           print(account.color);
           setState(() {
-            _account=account;
-            _transaction.idAccount=account.id;
+            _transaction.account=account;
           });
         }
       });
@@ -100,6 +103,7 @@ class _TransactionPageState extends State<TransactionPage> {
             title:TextField(
               controller: _amountController,
               style: Theme.of(context).textTheme.headline,
+              autofocus: true,
               keyboardType: TextInputType.numberWithOptions(signed: true,decimal: true),
               textInputAction: TextInputAction.done,
               decoration: InputDecoration.collapsed(
@@ -115,8 +119,8 @@ class _TransactionPageState extends State<TransactionPage> {
           Divider(),
           ListTile(
             leading: Icon(MdiIcons.walletOutline,
-            color: _account?.color==null?Colors.grey:ColorsApp(context).getColorDataByKey(_account.color)['color'],),
-            title: Text(_account?.name??''),
+            color: _transaction.account?.color==null?Colors.grey:ColorsApp(context).getColorDataByKey(_transaction.account.color)['color'],),
+            title: Text(_transaction.account?.name??''),
             trailing: _transaction.transactionType==TransactionType.Transfer?Icon(MdiIcons.bankTransferOut,color: Colors.red):null,
             onTap: _onTabAccount,
           ),
@@ -124,8 +128,8 @@ class _TransactionPageState extends State<TransactionPage> {
             visible: _transaction.transactionType==TransactionType.Transfer,
             child: ListTile(
               leading: Icon(MdiIcons.walletOutline,
-                color: _accountTransfer?.color==null?Colors.grey:ColorsApp(context).getColorDataByKey(_accountTransfer?.color)['color'],),
-              title: Text(_accountTransfer?.name??''),
+                color: _transaction.accountTransfer?.color==null?Colors.grey:ColorsApp(context).getColorDataByKey(_transaction.accountTransfer?.color)['color'],),
+              title: Text(_transaction.accountTransfer?.name??''),
               trailing: Icon(MdiIcons.bankTransferIn,color: Colors.green),
               onTap: _onTabAccountTransfer,
             ),
@@ -230,11 +234,10 @@ class _TransactionPageState extends State<TransactionPage> {
     .then((Account account){
       if(account!=null){
         setState(() {
-          if(account?.id==_accountTransfer?.id){
-            _accountTransfer=null;
+          if(account?.id==_transaction.accountTransfer?.id){
+            _transaction.accountTransfer=null;
           }
-          _account=account;
-          _transaction.idAccount=account.id;
+          _transaction.account=account;
         });
       }
     });
@@ -250,11 +253,10 @@ class _TransactionPageState extends State<TransactionPage> {
     .then((Account account){
       if(account!=null){
         setState(() {
-          if(account?.id==_account?.id){
-            _account=null;
+          if(account?.id==_transaction?.account?.id){
+            _transaction.account=null;
           }
-          _accountTransfer=account;
-          _transaction.idAccountTransfer=account.id;
+          _transaction.accountTransfer=account;
         });
       }
     });
@@ -293,6 +295,7 @@ class _TransactionPageState extends State<TransactionPage> {
       default: return 'Todos los dias';
     }
   }
+  
   void _onTabRepeat(){
     showDialog(
       context: context,
@@ -526,30 +529,20 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   _save(){
-    _transaction.amount=double.parse(_amountController.text.replaceAll(',', '')??'0');
+    _transaction.amount=double.tryParse(_amountController.text.replaceAll(',', ''));
     _transaction.description=_descriptionController.text;
     _transaction.notes=_notesController.text;
 
-    Transaction.add(_transaction)
-      .then((v){
-        Navigator.pop(context);
-      })
-      .catchError((error){
-        print(error);
-      });
+    if(!isNumeric(_transaction.amount.toString()))return;
+    if(_transaction.description.length==0){
+      _transaction.description='Desde '+_transaction.account.name;
+    }
+    if(_transaction.accountTransfer==null && _transaction.transactionType==TransactionType.Transfer)return;
 
-    // switch (_transaction.transactionType) {
-    //   case TransactionType.Income:
-    //     Transaction.add(_transaction);
-    //     break;
-    //   case TransactionType.Expense:
-    //     Transaction.add(_transaction);
-    //     break;
-    //   case TransactionType.Transfer:
-    //     Transaction.add(_transaction);
-    //     break;
-    //   default:
-    //     return;
-    // }
+    BlocProvider.of<TransactionBloc>(context).add(AddTransaction(_transaction,
+      onSave: (int id){
+        Navigator.pop(context);
+      }
+    ));
   }
 }

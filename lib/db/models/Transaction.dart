@@ -1,15 +1,17 @@
+import 'package:silverkeep/db/models/Account.dart';
+
 import '../DB.dart';
 import 'package:intl/intl.dart';
 
 import 'Label.dart';
 import 'TransactionLabel.dart';
 
-class Transaction {
+class Transaction{
 
   int id;
   int idUser;
-  int idAccount;
-  int idAccountTransfer;
+  Account account;
+  Account accountTransfer;
   double amount;
   String description;
   String notes;
@@ -28,14 +30,13 @@ class Transaction {
   bool sunday;
   NotifyTimeType notifyTimeType;
   int notifyTimes;
-
   List<Label> labels;
 
 
 
   static String tableName = 'TRANSACTION';
 
-  Transaction({this.id, this.idUser,this.idAccount,this.idAccountTransfer,this.amount,this.description,this.notes,this.transactionType,
+  Transaction({this.id, this.idUser,this.account,this.accountTransfer,this.amount,this.description,this.notes,this.transactionType,
   this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
   this.dateFinish,this.monday=false,this.tuesday=false,this.wednesday=false,this.thursday=false,
   this.friday=false,this.saturday=false,this.sunday=false,
@@ -45,8 +46,8 @@ class Transaction {
     Map<String, dynamic> map = {
       'id': id,
       'id_user': idUser,
-      'id_account': idAccount,
-      'id_account_transfer': idAccountTransfer,
+      'id_account': account.id,
+      'id_account_transfer': accountTransfer?.id??null,
       'amount':amount,
       'description':description,
       'notes':notes,
@@ -79,8 +80,8 @@ class Transaction {
         }
       }(),
       'repeat_count':repeatCount,
-      'date':DateFormat('yyyy-MM-dd').format(date),
-      'date_finish':dateFinish==null?null:DateFormat('yyyy-MM-dd').format(dateFinish),
+      'date':DateFormat('yyyy-MM-dd-hh:mm').format(date),
+      'date_finish':dateFinish==null?null:DateFormat('yyyy-MM-dd-hh:mm').format(dateFinish),
       'monday':this.monday?1:0,
       'tuesday':this.tuesday?1:0,
       'wednesday':this.wednesday?1:0,
@@ -104,12 +105,30 @@ class Transaction {
     return map;
   }
 
+  String getTitleRepeat(){
+    switch (repeatMode) {
+      case TransactionRepeatMode.NotRepeat: return 'No se repite';
+      case TransactionRepeatMode.EveryDay: return 'Todos los dias';
+      case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
+      case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
+      case TransactionRepeatMode.EveryYear: return 'Todos los años';
+      case TransactionRepeatMode.Custom:
+        String label='Se repite ';
+        if(repeatEvery==TransactionRepeatEvery.Days)label+='cada $repeatCount dias';
+        if(repeatEvery==TransactionRepeatEvery.Weeks)label+='cada $repeatCount semanas';
+        if(repeatEvery==TransactionRepeatEvery.Months)label+='cada $repeatCount meses';
+        if(repeatEvery==TransactionRepeatEvery.Years)label+='cada $repeatCount años';
+        return label;
+      default: return 'Todos los dias';
+    }
+  }
+
   static Transaction fromMap(Map<String, dynamic> map) {
     return Transaction(
       id: map['id'],
       idUser: map['id_user'],
-      idAccount: map['id_account'],
-      idAccountTransfer: map['id_account_transfer'],
+      //account: map['id_account'],
+      //accountTransfer: map['id_account_transfer'],
       amount: double.parse(map['amount'].toString()),
       description: map['description'],
       notes: map['notes'],
@@ -184,25 +203,40 @@ class Transaction {
     );
   }
 
-  static Future<List<Transaction>> getAll({String orderBy='id asc'})async{
+  // static Future<List<Transaction>> getAll({String orderBy='id asc'})async{
+  //   final  db=DB.db;
+
+  //   return db.query(Transaction.tableName,orderBy: orderBy)
+  //     .then((res){
+  //       if(res.length>0){
+  //         return res.map((v)=>Transaction.fromMap(v)).toList();
+  //       }
+  //       else return [];
+  //     });
+  // }
+
+  static Future<List<Transaction>> select({String orderBy='date desc,id desc'})async{
     final  db=DB.db;
 
-    return db.query(Transaction.tableName,orderBy: orderBy)
-      .then((res){
+    return await db.query(Transaction.tableName,orderBy: orderBy)
+      .then((res)async{
         if(res.length>0){
-          return res.map((v)=>Transaction.fromMap(v)).toList();
-        }
-        else return [];
-      });
-  }
+          List<Transaction> transactions= res.map((v)=>Transaction.fromMap(v)).toList();
 
-  static Future<List<Transaction>> select({String orderBy='id asc'})async{
-    final  db=DB.db;
+          for (int i = 0; i < transactions.length; i++) {
+            transactions[i].account=await Account.findById(int.parse(res[i]['id_account'].toString()));
+            if(res[i]['id_account_transfer']!=null)
+              transactions[i].accountTransfer=await Account.findById(int.parse(res[i]['id_account_transfer'].toString()));
 
-    return db.query(Transaction.tableName,orderBy: orderBy)
-      .then((res){
-        if(res.length>0){
-          return res.map((v)=>Transaction.fromMap(v)).toList();
+          }
+          
+          for (var item in transactions) {
+            item.labels=await Label.findByTransactionId(item.id);
+          }          
+          // transactions.sort((a, b){
+          //   return b.date.compareTo(b.date);
+          // });
+          return transactions;
         }
         else return [];
       });
@@ -211,9 +245,17 @@ class Transaction {
   static Future<Transaction> findById(int id)async{
     final  db=DB.db;
 
-    return db.query(Transaction.tableName,where: 'id = ?',whereArgs: [id])
-      .then((res){
-        if(res.length>0)return Transaction.fromMap(res[0]);
+    return await db.query(Transaction.tableName,where: 'id = ?',whereArgs: [id])
+      .then((res)async{
+        if(res.length>0){
+          Transaction transaction= Transaction.fromMap(res[0]);
+
+          transaction.account=await Account.findById(int.parse(res[0]['id_account'].toString()));
+          if(res[0]['id_account_transfer']!=null)
+            transaction.accountTransfer=await Account.findById(int.parse(res[0]['id_account_transfer'].toString()));
+          transaction.labels=await Label.findByTransactionId(transaction.id);
+          return transaction;
+        }
         else return null;
       });
   }

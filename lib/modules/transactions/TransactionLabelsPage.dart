@@ -97,6 +97,9 @@ class _TransactionLabelsPageState extends State<TransactionLabelsPage> {
                         leading: Icon(Icons.add,color: Theme.of(context).accentColor),
                         title: Text('"${_textController.text.trim()}"'),
                         onTap: (){
+                          setState(() {
+                            _loadingLabels=true;
+                          });
                           Label.add(Label(name: _textController.text.trim(),type: (){
                             switch (_transactionType) {
                               case TransactionType.Expense: return LabelType.Expense;

@@ -121,6 +121,22 @@ class Label {
       });
   }
 
+  static Future<List<Label>> findByTransactionId(int idTransaction)async{
+    final db=DB.db;
+
+    return await db.query('TRANSACTION_LABEL',where: 'id_transaction= ?',whereArgs: [idTransaction])
+      .then((res)async{
+        if(res.length==0)return [];
+        else{
+          List<Label> transaction=[];
+          for (var item in res) {
+            transaction.add(await findById(item['id_label']));
+          }
+          return transaction;
+        }
+      });
+  }
+
   static Future<void> deleteById(int id)async{
     final  db=DB.db;
     return db.delete(Label.tableName,where: 'id = ?',whereArgs: [id]);

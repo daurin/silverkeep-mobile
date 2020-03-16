@@ -81,4 +81,8 @@ class ColorsApp{
     Map colorData=colors.firstWhere((v)=>v['key']==key,orElse:() => colors[colors.length-1]);
     return colorData;  
   }
+
+  Color getColorByKey(String key){
+    return getColorDataByKey(key)['color'];
+  }
 }

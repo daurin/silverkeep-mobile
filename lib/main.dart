@@ -8,37 +8,52 @@ import 'package:silverkeep/modules/home/HomePage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'blocs/transaction/TransactionBloc.dart';
 import 'db/DB.dart';
-import 'db/models/User.dart';
 
 void main()async{
   WidgetsFlutterBinding.ensureInitialized();
   
   await DB.init();
-
-  final prefs=new SharedPrefService();
-  await prefs.initPrefs();
-  
-  if(prefs.openFirstTimeApp){
-    prefs.openFirstTimeApp=false;
-    User.add(User())
-      .then((int id)async{
-        await Account.add(Account(name: 'Efectivo',idUser: id,orderCustom: 0));
-      });
-  }
   Intl.defaultLocale = 'es_US';
+
+  // final prefs=new SharedPrefService();
+  // await prefs.initPrefs();
+  // if(prefs.openFirstTimeApp){
+  //   prefs.openFirstTimeApp=false;
+  //   await DB.initData();
+  // }
 
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance
+      .addPostFrameCallback((_)async{
+        final prefs=new SharedPrefService();
+        await prefs.initPrefs();
+        if(prefs.openFirstTimeApp){
+          prefs.openFirstTimeApp=false;
+          await DB.initData();
+        }
+
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<TransactionBloc>(
-          create: (BuildContext context) => TransactionBloc(),
-        )
+        BlocProvider<TransactionBloc>(create: (BuildContext context) => TransactionBloc(),),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

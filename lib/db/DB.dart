@@ -1,6 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:silverkeep/db/models/Transaction.dart';
+import 'package:sqflite/sqflite.dart' hide Transaction;
+
+import 'models/Account.dart';
+import 'models/User.dart';
+import 'models/Transaction.dart';
 
 abstract class DB {
   static Database db;
@@ -18,9 +24,9 @@ abstract class DB {
         version: 2, onOpen: _onOpen, onCreate: _onCreate, onUpgrade: _onUprade);
   }
 
-  static _onOpen(Database db) {}
+  static void _onOpen(Database db) {}
 
-  static _onCreate(Database db, int version) {
+  static void _onCreate(Database db, int version) {
     print('Base de datos creada');
 
     rootBundle.loadString('lib/db/silverkeep.sql')
@@ -39,7 +45,28 @@ abstract class DB {
       });
   }
 
-  static _onUprade(Database db, int oldVersion, int newVersion) {}
+  static void _onUprade(Database db, int oldVersion, int newVersion) {}
+
+
+  static Future<void> initData()async{
+    int idUser=await User.add(User());
+    int idAccount=await Account.add(Account(name: 'Efectivo',idUser: idUser,orderCustom: 0));
+
+    // for (int i = 0; i < 632; i++) {
+    //   await Transaction.add(Transaction(
+    //     idUser: idUser,
+    //     amount: 1000,
+    //     description: 'Transaction ${i+1}',
+    //     account: Account(
+    //       id: idAccount,
+    //     ),
+    //     date: DateTime.now(),
+    //     transactionType: TransactionType.Income,
+    //     repeatMode: TransactionRepeatMode.EveryDay,
+    //   ));
+    // }
+    
+  }
 
   // static String _getStringFromBytes(ByteData data) {
   //   final buffer = data.buffer;

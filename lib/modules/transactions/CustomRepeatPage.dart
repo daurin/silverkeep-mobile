@@ -3,21 +3,20 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
 
-class CustomNotificationPage extends StatefulWidget {
+class CustomRepeatPage extends StatefulWidget {
   
   final Transaction transaction; 
 
-  const CustomNotificationPage({Key key,this.transaction}) : super(key: key);
+  const CustomRepeatPage({Key key,this.transaction}) : super(key: key);
 
   @override
-  _CustomNotificationPageState createState() => _CustomNotificationPageState();
+  _CustomRepeatPageState createState() => _CustomRepeatPageState();
 }
 
-class _CustomNotificationPageState extends State<CustomNotificationPage> {
+class _CustomRepeatPageState extends State<CustomRepeatPage> {
 
-  FocusNode _focusNode;
-
-  TextEditingController _textController;
+  FocusNode _repeatEveryFocus,_finishAfterRepeatFocus;
+  TextEditingController _repeatEveryCountController,_finishAfterRepeatController;
 
   Transaction _transaction;
   DateTime _dateFinish;
@@ -26,13 +25,25 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
   void initState() {
     super.initState();
 
-    _focusNode=FocusNode();
-    _focusNode.addListener((){
-      if(_focusNode.hasFocus)
-        _textController.selection=TextSelection(baseOffset: 0, extentOffset: _textController.text.length);
+    _transaction=widget.transaction;
+
+    _repeatEveryFocus=FocusNode();
+    _finishAfterRepeatFocus=FocusNode();
+    _repeatEveryFocus.addListener((){
+      if(_repeatEveryFocus.hasFocus)
+        _repeatEveryCountController.selection=TextSelection(baseOffset: 0, extentOffset: _repeatEveryCountController.text.length);
+    });
+    _finishAfterRepeatFocus.addListener((){
+      if(_finishAfterRepeatFocus.hasFocus)
+        _finishAfterRepeatController.selection=TextSelection(baseOffset: 0, extentOffset: _finishAfterRepeatController.text.length);
     });
 
-    _transaction=widget.transaction;
+    _repeatEveryCountController=TextEditingController(
+      text: _transaction.repeatEveryCount==null?'1':_transaction.repeatEveryCount.toString()
+    );
+    _finishAfterRepeatController=TextEditingController(
+      text: _transaction.finishAfterRepeat==null?'1':_transaction.finishAfterRepeat.toString()
+    );
     if(_transaction.repeatEvery==null)_transaction.repeatEvery=TransactionRepeatEvery.Days;
     if(_transaction.monday==null)_transaction.monday=false;
     if(_transaction.tuesday==null)_transaction.tuesday=false;
@@ -45,14 +56,13 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     if(_transaction.dateFinish!=null)_dateFinish=_transaction.dateFinish;
     else _dateFinish=DateTime.now().add(Duration(days: 30));
 
-    _textController=TextEditingController(text: _transaction.repeatCount.toString());
   }
 
   @override
   void dispose() {
+    _repeatEveryFocus.dispose();
     super.dispose();
 
-    _focusNode.dispose();
   }
 
   @override
@@ -74,34 +84,15 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
       ),
       body: ListView(
         children: <Widget>[
-          _buildLabel('Se repite cada dia'),
+          _buildLabel('Se repite cada'),
           ListTile(
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Container(
-                  width: 48,
-                  child: TextField(
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration.collapsed(
-                      hintText: '',
-                      border: OutlineInputBorder(),
-                      fillColor: Colors.grey.shade200,
-                    ),
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(2),
-                      WhitelistingTextInputFormatter.digitsOnly,
-                      TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
-                        if(newValue.text.length==0)return newValue;
-                        if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
-                        return newValue;
-                      })
-                    ],
-                    onChanged: (String text)=>setState(()=>_transaction.repeatCount=int.parse(text)),
-                  ),
+                _buildInput(
+                  controller: _repeatEveryCountController,
+                  focusNode: _repeatEveryFocus,
+                  onChanged: (String text)=>setState(()=>_transaction.repeatEveryCount=int.parse(text)),
                 ),
                 SizedBox(width: 13,),
                 ClipRRect(
@@ -157,30 +148,83 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
           ),
           Divider(),
           _buildLabel('Finaliza'),
-          RadioListTile<DateTime>(
-            value: null,
-            groupValue: _transaction.dateFinish,
-            title: Text('Nunca'),
-            onChanged: _onChangeDateFinish
-          ),
-          RadioListTile<DateTime>(
-            value: _dateFinish,
-            groupValue: _transaction.dateFinish,
+          // ListTile(
+          //   title: Row(
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: <Widget>[
+          //       _buildInput(
+          //         onChanged: (String text)=>setState(()=>_transaction.repetitions=int.parse(text)),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // RadioListTile<DateTime>(
+          //   value: null,
+          //   groupValue: _transaction.dateFinish,
+          //   title: Text('Nunca'),
+          //   onChanged: _onChangeDateFinish
+          // ),
+          RadioListTile(
+            value: TransactionFinishMode.Date,
+            groupValue: _transaction.finishRepeatMode,
             title: GestureDetector(
-              child: Row(
-                children: <Widget>[
-                  Text('El ${DateFormat.yMMMMEEEEd().format(_dateFinish)}'),
-                ],
-              ),
-              onTap: _onTabDateFinish,
+              onTap:  _transaction.finishRepeatMode== TransactionFinishMode.Date?_onTabDateFinish:null,
+              child: Text('El ${DateFormat.yMMMMEEEEd().format(_dateFinish)}'),
             ),
             secondary: IconButton(
               icon: Icon(Icons.date_range),
               onPressed: _onTabDateFinish
             ),
-            onChanged: _onChangeDateFinish
+            onChanged: _onChangeFinish
+          ),
+          RadioListTile(
+            value: TransactionFinishMode.AfterRepeat,
+            groupValue: _transaction.finishRepeatMode,
+            title: GestureDetector(
+              child: Row(
+                children: <Widget>[
+                  Text('Despues de'),
+                  SizedBox(width: 8,),
+                  _buildInput(
+                    focusNode: _finishAfterRepeatFocus,
+                    controller: _finishAfterRepeatController,
+                    onChanged: (String text)=>setState(()=>_transaction.finishAfterRepeat=int.parse(text)),
+                  ),
+                  SizedBox(width: 8,),
+                  Text('repeticiones'),
+                ],
+              ),
+            ),
+            onChanged: _onChangeFinish
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInput({TextEditingController controller,FocusNode focusNode,void Function(String text) onChanged}){
+    return Container(
+      width: 48,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        keyboardType: TextInputType.numberWithOptions(signed: false,decimal: false),
+        textAlign: TextAlign.center,
+        decoration: InputDecoration.collapsed(
+          hintText: '',
+          border: OutlineInputBorder(),
+          fillColor: Colors.grey.shade200,
+        ),
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(2),
+          WhitelistingTextInputFormatter.digitsOnly,
+          TextInputFormatter.withFunction((TextEditingValue oldValue, TextEditingValue newValue){
+            if(newValue.text.length==0)return newValue;
+            if(newValue.text[0]=='0')return newValue.copyWith(text: '1');
+            return newValue;
+          })
+        ],
+        onChanged: onChanged,
       ),
     );
   }
@@ -247,10 +291,9 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     );
   }
 
-  void _onChangeDateFinish(DateTime date){
+  void _onChangeFinish(TransactionFinishMode value){
     setState((){
-      if(date!=null)_dateFinish=date;
-      _transaction.dateFinish=date;
+      _transaction.finishRepeatMode=value;
     });
   }
 
@@ -262,7 +305,7 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
     showDatePicker(
       context: context,
       initialDate: _transaction.dateFinish??DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: _transaction.date,
       lastDate: DateTime.now().add(Duration(days: 36500))
     )
     .then((DateTime date){
@@ -278,10 +321,12 @@ class _CustomNotificationPageState extends State<CustomNotificationPage> {
   }
 
   void _onSubmit(){
-    if(_transaction.repeatCount.toString().length==0){
-      _transaction.repeatCount=1;
-    }
+    _transaction.repeatEveryCount=int.parse(_repeatEveryCountController.text);
     _transaction.repeatMode=TransactionRepeatMode.Custom;
+
+    if(_transaction.repeatEveryCount==null)_transaction.repeatEveryCount=1;
+    if(_transaction.finishAfterRepeat==null)_transaction.finishAfterRepeat=1;
+
     Navigator.pop(context,_transaction);
   }
 }

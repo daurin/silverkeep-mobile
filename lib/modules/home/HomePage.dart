@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:silverkeep/blocs/transaction/TransactionBloc.dart';
 import 'package:silverkeep/blocs/transaction/TransactionEvents.dart';
+import 'package:silverkeep/db/DB.dart';
 import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/more/MoreFragment.dart';
 import 'package:silverkeep/modules/more/MoreAppBar.dart';
 import 'package:silverkeep/modules/transactions/TransactionAppBar.dart';
 import 'package:silverkeep/modules/transactions/TransactionPage.dart';
 import 'package:silverkeep/modules/transactions/TransactionsFragment.dart';
+import 'package:silverkeep/services/SharedPrefService.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -18,15 +20,52 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  
   int _bottonNavigationIndex;
+  List<Widget> _fragments;
+  final PageStorageBucket bucket = PageStorageBucket();
+
+  ScrollController _scrollTransactions=ScrollController();
+
+  TransactionBloc _transactionBloc;
 
 
   @override
   void initState() {
     super.initState();
-
     _bottonNavigationIndex=0;
-    BlocProvider.of<TransactionBloc>(context).add(LoadTransactions());
+
+    _transactionBloc = BlocProvider.of<TransactionBloc>(context);
+
+
+    _transactionBloc.add(LoadTransactionsRepeat(
+      offset: 0,
+      limit: 50
+    ));
+    _transactionBloc.add(LoadTransactions(
+      offset: 0,
+      limit: 50
+    ));
+
+    _fragments=[
+      Center(
+        key: PageStorageKey(0),
+        child:Text('General')
+      ),
+      TransactionsFragment(
+        scrollController: _scrollTransactions,
+        key: PageStorageKey(1),
+      ),
+      //Center(child:Text('Presupuestos')),
+      MoreFragment(
+        key: PageStorageKey(2),
+      )
+    ];
+
+    WidgetsBinding.instance
+      .addPostFrameCallback((_)async{
+        
+      });
   }
 
   @override
@@ -46,14 +85,12 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: IndexedStack(
-        index:_bottonNavigationIndex,
-        children:[
-          Center(child:Text('General')),
-          TransactionsFragment(),
-          //Center(child:Text('Presupuestos')),
-          MoreFragment()
-        ]
+      body: PageStorage(
+        bucket: bucket,
+        child: IndexedStack(
+          index: _bottonNavigationIndex,
+          children: _fragments,
+        )
       ),
       floatingActionButton:_buildFloatingActionButton(),
       bottomNavigationBar: BottomNavigationBar(
@@ -64,6 +101,10 @@ class _HomePageState extends State<HomePage> {
         //showUnselectedLabels: false,
         //selectedItemColor: Theme.of(context).accentColor,
         onTap: (index){
+          if(_bottonNavigationIndex==index && index==1){
+            //_scrollTransactions.animateTo(0,duration: Duration(seconds: 1),curve: Curves.easeIn);
+            //_transactionBloc.add(LoadTransactions(offset: 0,clearOldTransactions: true));
+          }
           setState(() {
             _bottonNavigationIndex=index;
           });

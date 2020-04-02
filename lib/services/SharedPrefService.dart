@@ -14,8 +14,8 @@ class SharedPrefService {
     this._prefs=await SharedPreferences.getInstance();
   }
 
-  set showAccountAmount(bool value)=>_prefs.setBool('showAccountAmount', value);
-  bool get showAccountAmount =>_prefs.getBool('showAccountAmount')??true;
+  set showAmount(bool value)=>_prefs.setBool('showAmount', value);
+  bool get showAmount =>_prefs.getBool('showAmount')??true;
 
   set openFirstTimeApp(bool value)=>_prefs.setBool('openFirstTimeApp', value);
   bool get openFirstTimeApp =>_prefs.getBool('openFirstTimeApp')??true;

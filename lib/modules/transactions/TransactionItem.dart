@@ -5,17 +5,17 @@ import 'package:silverkeep/db/models/Transaction.dart';
 import 'package:silverkeep/modules/shared/colors/ColorsApp.dart';
 
 class TransactionItem extends StatelessWidget {
-  final double amount;
   final Transaction transaction;
+  final void Function() onTab;
 
-  const TransactionItem({Key key, this.transaction, this.amount})
+  const TransactionItem({Key key, this.transaction, this.onTab})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
-        //height: transaction.labels.length==0?72:null,
+        //height: transaction.labels.length==0?84:null,
         padding: EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -25,22 +25,30 @@ class TransactionItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _buildTitle(context),
-                    SizedBox(height: 5,),
-                    _buildSubtitle(context),
-                  ],
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _buildTitle(context),
+                      SizedBox(height: 5,),
+                      _buildSubtitle(context),
+                      SizedBox(height: 5,),
+                      _buildStatus(context)
+                    ],
+                  ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     _buildAmount(context),
-                    SizedBox(height: 2,),
-                    _buildStatus(context),
+                    SizedBox(height: 16,),
+                    Text(DateFormat.yMMMd().format(transaction.date),
+                      style: TextStyle(fontSize: 15,color: Theme.of(context).hintColor),
+                    )
                   ],
                 ),
               ],
@@ -58,13 +66,14 @@ class TransactionItem extends StatelessWidget {
           ],
         ),
       ),
-      onTap: _onTab,
+      onTap: onTab,
     );
   }
 
   Widget _buildTitle(BuildContext context){
     return Text(
       transaction.description ?? '',
+      //overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.subhead,
     );
   }
@@ -113,12 +122,12 @@ class TransactionItem extends StatelessWidget {
           ),
           padding: EdgeInsets.fromLTRB(7, 3, 7, 2),
           decoration: BoxDecoration(
-              color: ColorsApp(context).getColorByKey(item.color) != null?
-                ColorsApp(context).getColorByKey(item.color).withOpacity(0.3):
-                null,
-              border:
-                  Border.all(width: 1, color: Theme.of(context).dividerColor),
-              borderRadius: BorderRadius.all(Radius.circular(7))),
+            color: ColorsApp(context).getColorByKey(item.color) != null?
+              ColorsApp(context).getColorByKey(item.color).withOpacity(0.3):
+              null,
+            border:
+                Border.all(width: 1, color: Theme.of(context).dividerColor),
+            borderRadius: BorderRadius.all(Radius.circular(7))),
         );
       }).toList(),
     );
@@ -129,7 +138,7 @@ class TransactionItem extends StatelessWidget {
     text: TextSpan(children: [
       () {
         TextStyle textStyle =
-            Theme.of(context).textTheme.title.copyWith(fontSize: 18);
+            Theme.of(context).textTheme.title.copyWith(fontSize: 21);
         switch (transaction.transactionType) {
           case TransactionType.Income:
             textStyle = textStyle.copyWith(color: Colors.green);
@@ -160,6 +169,10 @@ class TransactionItem extends StatelessWidget {
       visible: true,
       child: RichText(
         text: TextSpan(children: [
+          TextSpan(
+            text: true?'Realizada ':' Pendiente',
+            style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
+          ),
           WidgetSpan(
             child: Icon(
                 true? Icons.check : Icons.refresh,
@@ -168,10 +181,6 @@ class TransactionItem extends StatelessWidget {
               ),
               alignment: PlaceholderAlignment.middle,
               style: Theme.of(context).textTheme.subtitle
-            ),
-            TextSpan(
-              text: true?' Realizada':' Pendiente',
-              style: Theme.of(context).textTheme.subtitle.copyWith(fontSize: 13)
             ),
             // TextSpan(
             //   text: " - ${DateFormat.Hm().format(transaction.date)}",
@@ -182,7 +191,4 @@ class TransactionItem extends StatelessWidget {
       ),
     );
   }
-
-  void _onTab() {}
-
 }

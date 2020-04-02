@@ -6,7 +6,7 @@ String _fontFamily='Roboto';
 ThemeData buildThemeLight(BuildContext context){
   return ThemeData(
     brightness: Brightness.light,
-    primaryColor: Colors.blueAccent,
+    primaryColor: Colors.blue,
     //accentColor: Colors.greenAccent,
     fontFamily: _fontFamily,
     appBarTheme: AppBarTheme(
@@ -34,6 +34,7 @@ ThemeData buildThemeLight(BuildContext context){
       display2: TextStyle(fontWeight: FontWeight.w500),
       display3: TextStyle(fontWeight: FontWeight.w500),
       display4: TextStyle(fontWeight: FontWeight.w500),
-    )
+    ),
+    
   ); 
 }

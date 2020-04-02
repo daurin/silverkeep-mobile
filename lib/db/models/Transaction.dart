@@ -1,8 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:silverkeep/db/models/Account.dart';
-
 import '../DB.dart';
 import 'package:intl/intl.dart';
-
 import 'Label.dart';
 import 'TransactionLabel.dart';
 
@@ -12,15 +11,19 @@ class Transaction{
   int idUser;
   Account account;
   Account accountTransfer;
+  int idTransactionParent;
+  int numberGroup;
   double amount;
   String description;
   String notes;
   TransactionType transactionType;
   TransactionRepeatMode repeatMode;
   TransactionRepeatEvery repeatEvery;
-  int repeatCount;
+  int repeatEveryCount;
+  int finishAfterRepeat;
   DateTime date;
   DateTime dateFinish;
+  TransactionFinishMode finishRepeatMode;
   bool monday;
   bool tuesday;
   bool wednesday;
@@ -36,9 +39,11 @@ class Transaction{
 
   static String tableName = 'TRANSACTION';
 
-  Transaction({this.id, this.idUser,this.account,this.accountTransfer,this.amount,this.description,this.notes,this.transactionType,
-  this.repeatMode,this.repeatEvery,this.repeatCount,this.date,
-  this.dateFinish,this.monday=false,this.tuesday=false,this.wednesday=false,this.thursday=false,
+  Transaction({this.id,this.idUser,this.account,this.accountTransfer,this.idTransactionParent,this.numberGroup,
+  @required this.amount,@required this.description,
+  this.notes, @required this.transactionType,
+  this.repeatMode,this.repeatEvery,this.repeatEveryCount,this.finishAfterRepeat,this.date,
+  this.dateFinish,this.finishRepeatMode,this.monday=false,this.tuesday=false,this.wednesday=false,this.thursday=false,
   this.friday=false,this.saturday=false,this.sunday=false,
   this.notifyTimeType,this.notifyTimes,this.labels});
 
@@ -48,6 +53,8 @@ class Transaction{
       'id_user': idUser,
       'id_account': account.id,
       'id_account_transfer': accountTransfer?.id??null,
+      'id_transaction_parent': idTransactionParent,
+      'number_group': numberGroup,
       'amount':amount,
       'description':description,
       'notes':notes,
@@ -67,7 +74,7 @@ class Transaction{
           case TransactionRepeatMode.EveryMonth: return 'everyMonth';
           case TransactionRepeatMode.EveryYear: return 'everyYear';
           case TransactionRepeatMode.Custom: return 'custom';
-          default: return null;
+          default: return 'notRepeat';
         }
       }(),
       'repeat_every':(){
@@ -79,7 +86,15 @@ class Transaction{
           default: return null;
         }
       }(),
-      'repeat_count':repeatCount,
+      'finish_repeat_mode': (){
+        switch(finishRepeatMode){
+          case TransactionFinishMode.AfterRepeat:return 'r';
+          case TransactionFinishMode.Date:return 'd';
+          default: return null;
+        }
+      }(),
+      'repeat_every_count':repeatEveryCount,
+      'finish_after_repeat':finishAfterRepeat,
       'date':DateFormat('yyyy-MM-dd-hh:mm').format(date),
       'date_finish':dateFinish==null?null:DateFormat('yyyy-MM-dd-hh:mm').format(dateFinish),
       'monday':this.monday?1:0,
@@ -91,8 +106,8 @@ class Transaction{
       'sunday':this.sunday?1:0,
       'notify_time_type':(){
         switch (notifyTimeType) {
-          case NotifyTimeType.Minutes:return 'months';
-          case NotifyTimeType.Hours:return 'years';
+          case NotifyTimeType.Minutes:return 'minutes';
+          case NotifyTimeType.Hours:return 'hours';
           case NotifyTimeType.Days:return 'days';
           case NotifyTimeType.Weeks:return 'weeks';
           default: return null;
@@ -105,30 +120,14 @@ class Transaction{
     return map;
   }
 
-  String getTitleRepeat(){
-    switch (repeatMode) {
-      case TransactionRepeatMode.NotRepeat: return 'No se repite';
-      case TransactionRepeatMode.EveryDay: return 'Todos los dias';
-      case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
-      case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
-      case TransactionRepeatMode.EveryYear: return 'Todos los años';
-      case TransactionRepeatMode.Custom:
-        String label='Se repite ';
-        if(repeatEvery==TransactionRepeatEvery.Days)label+='cada $repeatCount dias';
-        if(repeatEvery==TransactionRepeatEvery.Weeks)label+='cada $repeatCount semanas';
-        if(repeatEvery==TransactionRepeatEvery.Months)label+='cada $repeatCount meses';
-        if(repeatEvery==TransactionRepeatEvery.Years)label+='cada $repeatCount años';
-        return label;
-      default: return 'Todos los dias';
-    }
-  }
-
   static Transaction fromMap(Map<String, dynamic> map) {
     return Transaction(
       id: map['id'],
       idUser: map['id_user'],
       //account: map['id_account'],
       //accountTransfer: map['id_account_transfer'],
+      idTransactionParent: map['id_transaction_parent'],
+      numberGroup: map['number_group'],
       amount: double.parse(map['amount'].toString()),
       description: map['description'],
       notes: map['notes'],
@@ -160,6 +159,15 @@ class Transaction{
           default: return null;
         }
       }(),
+      repeatEveryCount: map['repeat_every_count'],
+      finishAfterRepeat: map['finish_after_repeat'],
+      finishRepeatMode: (){
+        switch (map['finish_repeat_mode']) {
+          case 'r': return TransactionFinishMode.AfterRepeat;
+          case 'd': return TransactionFinishMode.Date;
+          default: return null;
+        }
+      }(),
       date: DateFormat('yyyy-MM-dd').parse(map['date']),
       dateFinish:map['date_finish']==null? null : DateFormat('yyyy-MM-dd').parse(map['date_finish']),
       monday: map['monday']=='1',
@@ -177,15 +185,34 @@ class Transaction{
           case 'weeks': return NotifyTimeType.Weeks;
           default: return null;
         }
-      }()
+      }(),
+      notifyTimes: map['notify_times']
     );
+  }
+
+  String getTitleRepeat(){
+    switch (repeatMode) {
+      case TransactionRepeatMode.NotRepeat: return 'No se repite';
+      case TransactionRepeatMode.EveryDay: return 'Todos los dias';
+      case TransactionRepeatMode.EveryWeek: return 'Todas las semanas';
+      case TransactionRepeatMode.EveryMonth: return 'No se Todos los meses';
+      case TransactionRepeatMode.EveryYear: return 'Todos los años';
+      case TransactionRepeatMode.Custom:
+        String label='Se repite ';
+        if(repeatEvery==TransactionRepeatEvery.Days)label+='cada $repeatEveryCount dias';
+        if(repeatEvery==TransactionRepeatEvery.Weeks)label+='cada $repeatEveryCount semanas';
+        if(repeatEvery==TransactionRepeatEvery.Months)label+='cada $repeatEveryCount meses';
+        if(repeatEvery==TransactionRepeatEvery.Years)label+='cada $repeatEveryCount años';
+        return label;
+      default: return 'Todos los dias';
+    }
   }
 
   static Future<int> add(Transaction transaction)async{
     final db=DB.db;
     return await db.insert(tableName,transaction.toMap(ignoreId: true))
       .then((int id)async{
-        for (Label item in transaction.labels) {
+        for (Label item in transaction.labels??[]) {
           await TransactionLabel.add(TransactionLabel(
             idTransaction: id,
             idLabel: item.id
@@ -195,12 +222,19 @@ class Transaction{
       });
   }
 
-  static Future<int> editById(Transaction transaction,int id){
+  static Future<void> editById(Transaction transaction)async{
     final db=DB.db;
 
-    return db.update(Transaction.tableName,transaction.toMap(ignoreId: true),
-      where: 'id = ?',whereArgs: [id]
+    await db.update(Transaction.tableName,transaction.toMap(ignoreId: true),
+      where: 'id = ?',whereArgs: [transaction.id]
     );
+    await TransactionLabel.deleteByIds(idTransaction: transaction.id);
+    for (Label item in transaction.labels??[]) {
+      await TransactionLabel.add(TransactionLabel(
+        idTransaction: transaction.id,
+        idLabel: item.id
+      ));
+    }
   }
 
   // static Future<List<Transaction>> getAll({String orderBy='id asc'})async{
@@ -215,10 +249,28 @@ class Transaction{
   //     });
   // }
 
-  static Future<List<Transaction>> select({String orderBy='date desc,id desc'})async{
+  static Future<List<Transaction>> select({String orderBy='id desc,date desc',
+      List<TransactionRepeatMode> repeatModes,
+      int idTransactionParent,
+      int offset=0,limit=50}
+    )async{
     final  db=DB.db;
+    String query='';
+    List<String> whereQueryOr=[];
 
-    return await db.query(Transaction.tableName,orderBy: orderBy)
+    if((repeatModes??[]).length>0){
+      for (TransactionRepeatMode item in repeatModes) {
+        whereQueryOr.add("(repeat_mode = '${transactionRepetModeValue(item)}' OR repeat_mode=null)");
+      }
+    }
+
+    if(idTransactionParent!=null)whereQueryOr.add("(id_transaction_parent = $idTransactionParent)");
+
+    String offsetlimitQuery='LIMIT $limit OFFSET $offset';
+    query="SELECT * FROM `$tableName` ${whereQueryOr.length==0?'':'WHERE'} ${whereQueryOr.join(' OR ')} "+
+      "ORDER BY $orderBy ${limit>0?offsetlimitQuery:''};";
+    
+    return await db.rawQuery(query)
       .then((res)async{
         if(res.length>0){
           List<Transaction> transactions= res.map((v)=>Transaction.fromMap(v)).toList();
@@ -240,6 +292,34 @@ class Transaction{
         }
         else return [];
       });
+
+    // return await db.query(Transaction.tableName,
+    //   orderBy: orderBy,
+    //   offset: 0,
+    //   limit: 100)
+    //   .then((res)async{
+    //     if(res.length>0){
+    //       List<Transaction> transactions= res.map((v)=>Transaction.fromMap(v)).toList();
+
+    //       for (int i = 0; i < transactions.length; i++) {
+    //         transactions[i].account=await Account.findById(int.parse(res[i]['id_account'].toString()));
+    //         if(res[i]['id_account_transfer']!=null)
+    //           transactions[i].accountTransfer=await Account.findById(int.parse(res[i]['id_account_transfer'].toString()));
+
+    //       }
+          
+    //       for (var item in transactions) {
+    //         item.labels=await Label.findByTransactionId(item.id);
+    //       }          
+    //       // transactions.sort((a, b){
+    //       //   return b.date.compareTo(b.date);
+    //       // });
+    //       return transactions;
+    //     }
+    //     else return [];
+    //   });
+
+
   }
 
   static Future<Transaction> findById(int id)async{
@@ -262,7 +342,20 @@ class Transaction{
 
   static Future<void> deleteById(int id)async{
     final  db=DB.db;
+    await TransactionLabel.deleteByIds(idTransaction: id);
     return db.delete(Transaction.tableName,where: 'id = ?',whereArgs: [id]);
+  }
+
+  static String transactionRepetModeValue(TransactionRepeatMode repeatMode){
+    switch (repeatMode) {
+      case TransactionRepeatMode.NotRepeat: return 'notRepeat';
+      case TransactionRepeatMode.EveryDay: return 'everyDay';
+      case TransactionRepeatMode.EveryWeek: return 'everyWeek';
+      case TransactionRepeatMode.EveryMonth: return 'everyMonth';
+      case TransactionRepeatMode.EveryYear: return 'everyYear';
+      case TransactionRepeatMode.Custom: return 'custom';
+      default: return null;
+    }
   }
 
 }
@@ -289,9 +382,15 @@ enum TransactionRepeatEvery{
   Years
 }
 
+enum TransactionFinishMode{
+  AfterRepeat,
+  Date
+}
+
 enum NotifyTimeType{
   Minutes,
   Hours,
   Days,
-  Weeks
+  Weeks,
+  NotNotify
 }

@@ -33,4 +33,19 @@ class TransactionLabel {
     return db.insert(tableName,label.toMap());
   }
 
+  static Future<void> deleteByIds({int idTransaction,int idLabel})async{
+    final  db=DB.db;
+    List<String> where=[];
+    List<int> whereArgs=[];
+    if(idTransaction!=null){
+      where.add('id_transaction = ?');
+      whereArgs.add(idTransaction);
+    }
+    if(idLabel!=null){
+      where.add('id_label = ?');
+      whereArgs.add(idLabel);
+    }
+
+    return await db.delete(TransactionLabel.tableName,where: where.join(' AND '),whereArgs: whereArgs);
+  }
 }
